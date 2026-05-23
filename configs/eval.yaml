@@ -1,0 +1,19 @@
+# Evaluation Configuration
+
+models:
+  - name: "baseline"
+    path: "outputs/adapters/baseline"
+  - name: "dpo"
+    path: "outputs/adapters/dpo"
+
+tasks:
+  - "task_1"
+  - "task_2"
+
+metrics:
+  - accuracy
+  - success_rate
+  - trajectory_length
+
+num_samples: 100
+output_dir: "outputs/evals"

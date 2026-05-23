@@ -1,0 +1,15 @@
+# DPO Training Configuration for Qwen 1.5B with LoRA
+
+model_name: "qwen-1.5b"
+lora_rank: 16
+lora_alpha: 32
+learning_rate: 5.0e-4
+num_epochs: 3
+batch_size: 16
+gradient_accumulation_steps: 2
+max_seq_length: 2048
+beta: 0.1  # DPO temperature
+
+train_file: "data/preferences/dpo_train.jsonl"
+eval_file: "data/preferences/dpo_val.jsonl"
+output_dir: "outputs/adapters"
