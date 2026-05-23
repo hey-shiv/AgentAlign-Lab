@@ -17,6 +17,7 @@ source = { editable = "." }
 dependencies = [
     { name = "jsonlines" },
     { name = "pydantic" },
+    { name = "pytest" },
     { name = "pyyaml" },
 ]
 
@@ -42,6 +43,7 @@ requires-dist = [
     { name = "pandas", marker = "extra == 'dashboard'", specifier = ">=2.0" },
     { name = "plotly", marker = "extra == 'dashboard'", specifier = ">=5.0" },
     { name = "pydantic", specifier = ">=2.0" },
+    { name = "pytest", specifier = ">=9.0.3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.0" },
     { name = "pyyaml", specifier = ">=6.0" },
