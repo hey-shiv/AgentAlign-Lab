@@ -1,40 +1,40 @@
-"""Agent prompts and prompt templates.
+from agentalign.schemas import Task
 
-Defines system prompts, few-shot examples, and prompt templates.
+
+def build_system_prompt(task: Task) -> str:
+    return f"""You are a terminal-based AI agent.
+Your task is to solve the following instruction by executing commands, reading files, and writing files.
+
+INSTRUCTION:
+{task.instruction}
+
+AVAILABLE ACTIONS:
+- list_files: {{}}
+- read_file: {{"path": "<file_path>"}}
+- write_file: {{"path": "<file_path>", "content": "<new_content>"}}
+- run_command: {{"cmd": "<command_string>"}}
+- final_answer: {{"answer": "<summary_of_fix>"}}
+
+You must ALWAYS respond with a SINGLE valid JSON object in the following format:
+{{
+    "thought": "Your reasoning about what to do next",
+    "action": "action_name",
+    "args": {{...}}
+}}
+
+RULES:
+1. Always run tests using `run_command` to verify your fix before calling `final_answer`.
+2. Do not use interactive commands like `vim`, `nano`, or `less`. Use `cat` or `read_file` instead.
+3. Path must stay inside the workspace.
+4. Output only JSON, no markdown blocks around it.
 """
 
-
-class PromptTemplate:
-    """Template for agent prompts."""
-
-    SYSTEM_PROMPT = """You are a helpful AI agent. 
-Solve the given task step by step.
-Be clear about your reasoning."""
-
-    @staticmethod
-    def format_task(task_description: str) -> str:
-        """Format a task for the agent.
-
-        Args:
-            task_description: Description of the task
-
-        Returns:
-            Formatted prompt
-        """
-        return f"Task: {task_description}\n\nPlease solve this step by step."
-
-    @staticmethod
-    def format_history(steps: list[dict]) -> str:
-        """Format trajectory history.
-
-        Args:
-            steps: List of steps taken
-
-        Returns:
-            Formatted history
-        """
-        history = []
-        for step in steps:
-            history.append(f"Step {step['id']}: {step['action']}")
-            history.append(f"Observation: {step['observation']}")
-        return "\n".join(history)
+def format_history(history: list[dict]) -> str:
+    res = []
+    for h in history:
+        res.append(f"Model:\n{h['text']}")
+        if h.get('error'):
+            res.append(f"Environment Error:\n{h['error']}")
+        elif h.get('observation'):
+            res.append(f"Environment:\n{h['observation']}")
+    return "\n\n".join(res)

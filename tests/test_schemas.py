@@ -1,7 +1,8 @@
 """Tests for schemas module."""
 
 import pytest
-from agentalign.schemas import Task, Trajectory, Preference, Step
+
+from agentalign.schemas import Preference, Task, Trajectory
 
 
 def test_task_creation():

@@ -1,8 +1,7 @@
 """Tests for verifier module."""
 
-import pytest
-from agentalign.schemas import Trajectory, Step
-from agentalign.verifier.checks import run_all_checks, NonEmptyCheck, ValidStepsCheck
+from agentalign.schemas import Step, Trajectory
+from agentalign.verifier.checks import NonEmptyCheck, ValidStepsCheck, run_all_checks
 
 
 def test_non_empty_check():

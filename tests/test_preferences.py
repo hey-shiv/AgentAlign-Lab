@@ -1,8 +1,7 @@
 """Tests for preferences module."""
 
-import pytest
-from agentalign.schemas import Trajectory, Preference
 from agentalign.data.preferences import build_preferences_from_trajectories
+from agentalign.schemas import Preference, Trajectory
 
 
 def test_build_preferences():

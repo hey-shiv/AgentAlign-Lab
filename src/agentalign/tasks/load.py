@@ -1,48 +1,17 @@
-"""Task loading and I/O utilities.
-
-Functions for loading tasks from various data sources.
-"""
-
 import json
 from pathlib import Path
+
 from agentalign.schemas import Task
 
 
-def load_tasks_from_jsonl(file_path: Path | str) -> list[Task]:
-    """Load tasks from a JSONL file.
+def load_task(path: Path | str) -> Task:
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"Task file not found: {path}")
+    data = json.loads(path.read_text())
+    return Task.model_validate(data)
 
-    Args:
-        file_path: Path to JSONL file
-
-    Returns:
-        List of loaded tasks
-    """
-    tasks = []
-    file_path = Path(file_path)
-
-    if not file_path.exists():
-        return tasks
-
-    with open(file_path) as f:
-        for line in f:
-            if line.strip():
-                data = json.loads(line)
-                task = Task(**data)
-                tasks.append(task)
-
-    return tasks
-
-
-def save_tasks_to_jsonl(tasks: list[Task], file_path: Path | str) -> None:
-    """Save tasks to a JSONL file.
-
-    Args:
-        tasks: List of tasks to save
-        file_path: Output file path
-    """
-    file_path = Path(file_path)
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(file_path, "w") as f:
-        for task in tasks:
-            f.write(task.model_dump_json() + "\n")
+def save_task(task: Task, path: Path | str) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(task.model_dump_json(indent=2))

@@ -1,6 +1,5 @@
 """Tests for parser module."""
 
-import pytest
 from agentalign.agent.parser import OutputParser
 
 

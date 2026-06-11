@@ -1,50 +1,99 @@
-"""Agent main loop implementation.
+import datetime
+import time
+import uuid
+from typing import Callable
 
-Orchestrates the agent's interaction with the environment.
-"""
+from agentalign.agent.parser import parse_action
+from agentalign.agent.prompts import build_system_prompt, format_history
+from agentalign.agent.tools import ToolExecutor
+from agentalign.schemas import Step, Task, Trajectory
+from agentalign.tasks.workspace import TaskWorkspace
 
-from agentalign.schemas import Task, Trajectory, Step
 
+def run_agent_loop(
+    task: Task,
+    model_callable: Callable[[str], str],
+    agent_id: str = "baseline",
+    max_steps: int = 8,
+    model_name: str = "unknown"
+) -> Trajectory:
 
-class Agent:
-    """Main agent class."""
+    run_id = f"run_{uuid.uuid4().hex[:8]}_{task.task_id}_{agent_id}"
+    started_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
-    def __init__(self, model_name: str = "base", max_steps: int = 10):
-        """Initialize agent.
+    trajectory = Trajectory(
+        run_id=run_id,
+        task_id=task.task_id,
+        agent_id=agent_id,
+        model=model_name,
+        started_at=started_at,
+        metadata={"max_steps": max_steps}
+    )
 
-        Args:
-            model_name: Name of the underlying model
-            max_steps: Maximum steps per trajectory
-        """
-        self.model_name = model_name
-        self.max_steps = max_steps
+    system_prompt = build_system_prompt(task)
+    history = []
+    final_answer = None
 
-    def run(self, task: Task) -> Trajectory:
-        """Run agent on a task.
+    with TaskWorkspace(task) as workspace_path:
+        executor = ToolExecutor(workspace_path, forbidden_commands=task.forbidden_commands)
 
-        Args:
-            task: Task to solve
+        for step_idx in range(1, max_steps + 1):
+            prompt = system_prompt + "\n\n" + format_history(history) + "\n\nAction:"
 
-        Returns:
-            Completed trajectory
-        """
-        trajectory = Trajectory(
-            trajectory_id=f"traj_{task.task_id}",
-            task_id=task.task_id,
-            steps=[],
-            success=False,
-            score=0.0,
-        )
+            step_start = time.monotonic()
+            raw_text = model_callable(prompt)
+            latency_ms = int((time.monotonic() - step_start) * 1000)
 
-        for step_id in range(self.max_steps):
-            step = Step(
-                step_id=step_id,
-                action="placeholder_action",
-                observation="placeholder_observation",
-            )
-            trajectory.steps.append(step)
+            action_result, error_msg = parse_action(raw_text)
 
-        trajectory.success = len(trajectory.steps) > 0
-        trajectory.score = 0.5 if trajectory.success else 0.0
+            if error_msg:
+                # Invalid action
+                history.append({
+                    "text": raw_text,
+                    "error": error_msg
+                })
+                trajectory.steps.append(Step(
+                    step_index=step_idx,
+                    thought="<failed to parse>",
+                    action="<invalid>",
+                    error=error_msg,
+                    latency_ms=latency_ms
+                ))
+                continue
 
-        return trajectory
+            action = action_result
+
+            # Action is valid, execute
+            observation = executor.execute(action.name, action.args)
+
+            history.append({
+                "text": raw_text,
+                "observation": observation
+            })
+
+            trajectory.steps.append(Step(
+                step_index=step_idx,
+                thought=raw_text.split('"thought":')[1].split('",')[0].strip(' "') if '"thought":' in raw_text else "extracted", # naive extraction for thought
+                action=action.name,
+                args=action.args,
+                observation=observation,
+                latency_ms=latency_ms
+            ))
+
+            if action.name == "final_answer":
+                final_answer = action.args.get("answer", "")
+                break
+
+        # Run verifier
+        from agentalign.verifier.checks import run_verifier
+        from agentalign.verifier.score import calculate_score
+
+        verifier_result = run_verifier(task, workspace_path)
+        trajectory.verifier_result = verifier_result
+        trajectory.final_answer = final_answer
+
+        # Calculate composite score
+        calculate_score(trajectory)
+
+    trajectory.ended_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    return trajectory

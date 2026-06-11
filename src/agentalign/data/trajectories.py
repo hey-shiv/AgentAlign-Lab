@@ -1,51 +1,21 @@
-"""Trajectory data handling.
-
-Utilities for loading, saving, and manipulating trajectory data.
-"""
-
-import json
 from pathlib import Path
+
 from agentalign.schemas import Trajectory
 
 
-def load_trajectories(directory: Path | str) -> list[Trajectory]:
-    """Load trajectories from directory.
+def save_trajectory(trajectory: Trajectory, path: Path | str) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('a') as f:
+        f.write(trajectory.model_dump_json() + '\n')
 
-    Args:
-        directory: Directory containing trajectory files
-
-    Returns:
-        List of loaded trajectories
-    """
-    directory = Path(directory)
+def load_trajectories(path: Path | str) -> list[Trajectory]:
+    path = Path(path)
+    if not path.exists():
+        return []
     trajectories = []
-
-    if not directory.exists():
-        return trajectories
-
-    for file in directory.glob("*.jsonl"):
-        with open(file) as f:
-            for line in f:
-                if line.strip():
-                    data = json.loads(line)
-                    trajectory = Trajectory(**data)
-                    trajectories.append(trajectory)
-
+    with path.open('r') as f:
+        for line in f:
+            if line.strip():
+                trajectories.append(Trajectory.model_validate_json(line))
     return trajectories
-
-
-def save_trajectories(
-    trajectories: list[Trajectory], output_path: Path | str
-) -> None:
-    """Save trajectories to file.
-
-    Args:
-        trajectories: List of trajectories to save
-        output_path: Output file path
-    """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_path, "w") as f:
-        for traj in trajectories:
-            f.write(traj.model_dump_json() + "\n")

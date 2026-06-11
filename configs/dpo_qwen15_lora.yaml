@@ -1,15 +1,25 @@
-# DPO Training Configuration for Qwen 1.5B with LoRA
+# DPO Training Configuration for Qwen 1.5B with QLoRA
 
-model_name: "qwen-1.5b"
-lora_rank: 16
+model_name: "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+lora_r: 16
 lora_alpha: 32
+lora_dropout: 0.05
+target_modules:
+  - q_proj
+  - k_proj
+  - v_proj
+  - o_proj
 learning_rate: 5.0e-4
 num_epochs: 3
-batch_size: 16
-gradient_accumulation_steps: 2
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
 max_seq_length: 2048
 beta: 0.1  # DPO temperature
+warmup_ratio: 0.03
+logging_steps: 10
+save_steps: 100
+eval_steps: 100
 
 train_file: "data/preferences/dpo_train.jsonl"
 eval_file: "data/preferences/dpo_val.jsonl"
-output_dir: "outputs/adapters"
+output_dir: "outputs/adapters/qwen_dpo_final"
