@@ -115,5 +115,5 @@ Targeting a workshop paper or technical report as first output.
 
 <p>
   Shiv &middot; VIT-AP University, B.Tech CS (AI/ML) &middot; Batch 2027<br>
-  <a href="https://hey-shiv.github.io">hey-shiv.github.io</a> &middot; <a href="https://github.com/NaadhLabs">@NaadhLabs</a>
+  <a href="https://hey-shiv.github.io">hey-shiv.github.io</a> &middot; <a href="https://x.com/NaadhLabs">@NaadhLabs</a>
 </p>
