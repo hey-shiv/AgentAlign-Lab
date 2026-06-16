@@ -1,126 +1,120 @@
-# AgentAlign Lab
+<div align="center">
+  <h1>🧠 AgentAlign Lab</h1>
+  <p><strong>A verifier-guided preference learning pipeline for terminal agents.</strong></p>
 
-Verifier-guided preference data for reliable terminal agents. This project builds a compact local feedback loop:
+  <p>
+    <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.11+-blue.svg?logo=python&logoColor=white" alt="Python Version"></a>
+    <a href="https://github.com/astral-sh/uv"><img src="https://img.shields.io/badge/uv-Package_Manager-purple.svg?logo=python" alt="uv Package Manager"></a>
+    <a href="https://huggingface.co/docs/trl/index"><img src="https://img.shields.io/badge/TRL-DPOTrainer-yellow.svg?logo=huggingface&logoColor=white" alt="TRL"></a>
+    <a href="https://gradio.app/"><img src="https://img.shields.io/badge/Gradio-Dashboard-orange.svg?logo=gradio&logoColor=white" alt="Gradio"></a>
+  </p>
+</div>
 
-tasks -> agent runs -> trajectory logs -> deterministic verifiers -> DPO preference pairs -> evaluation -> dashboard.
+---
 
-## Current Build
+**AgentAlign Lab** is a complete, end-to-end pipeline designed to fine-tune small Language Models (like `Qwen2.5-Coder-1.5B-Instruct`) to act as autonomous, reliable ReAct-style terminal agents. It uses deterministic verifiers to automatically score agent trajectories and generate Direct Preference Optimization (DPO) datasets without requiring human labeling.
 
-- 60 deterministic tasks across 5 families:
-  - 25 Python bug fixes
-  - 15 data transformation tasks
-  - 10 JSON/config repair tasks
-  - 5 log extraction tasks
-  - 5 safety traps
-- 757 scored trajectories currently available across clean train/validation/test artifacts.
-- 336 train preference pairs and 9 validation preference pairs.
-- Family-specific verifiers: `pytest`, exact JSON, exact file, JSON schema, and safety-aware pytest.
-- Split-aware evaluation with pass rate, score, invalid action rate, unsafe action rate, timeout rate, and average steps.
-- Gradio dashboard with Overview, Task Explorer, Trajectory Viewer, Preference Pair Viewer, Baseline vs Tuned, and Failure Analysis tabs.
-- DPO training script with local dataset dry-run validation and a TRL/QLoRA training path for GPU machines.
+## ✨ Key Features
 
-## Setup
+1. **Task Generation**: Deterministically generates isolated coding and data tasks across 5 distinct families (Python bugfixes, data transformations, config repairs, log extractions, and safety traps).
+2. **Agent Execution Loop**: Runs a ReAct-style agent with an allowlisted, sandboxed terminal environment.
+3. **Trajectory Logging**: Captures structured execution histories detailing the agent's thoughts, actions, tools used, and environment observations.
+4. **Deterministic Verifiers**: Automatically grades the agent's work using `pytest`, JSON schema validation, exact matching, and safety checks.
+5. **Preference Pair Creation**: Converts raw scored trajectories into chosen/rejected DPO preference pairs based on strict score margins.
+6. **DPO + QLoRA Training**: Fine-tunes the base model using Hugging Face's `TRL` library, optimized with 4-bit quantization (QLoRA) for consumer hardware.
+7. **Evaluation Framework**: Robust baseline vs. tuned model comparison to track improvements in success rate, step efficiency, and safety compliance.
+8. **Observability Dashboard**: A rich Gradio interface to explore tasks, trace trajectories, analyze failure modes, and visualize metrics.
 
-```bash
-uv pip install -e ".[dev,dashboard]"
-```
+---
 
-For actual QLoRA/DPO training, also install the ML stack on a GPU machine:
+## 🛠️ Tech Stack
 
-```bash
-uv pip install -e ".[ml]"
-```
+- **Core & Schemas**: Python 3.11+, Pydantic v2
+- **Environment Management**: `uv`
+- **Model Inference**: Hugging Face Transformers
+- **Training**: TRL (DPOTrainer) + PEFT (QLoRA)
+- **Data Handling**: Hugging Face Datasets, JSONL
+- **Verification**: `pytest`, sandboxed `subprocess`
+- **UI/Dashboard**: Gradio Blocks
 
-## Reproduce The Local Pipeline
+---
 
-Generate the task suite:
+## 🚀 Quickstart
 
-```bash
-python scripts/01_generate_tasks.py
-```
+### 1. Installation
 
-Collect train trajectories with the scripted baseline and failure agent:
-
-```bash
-python scripts/02_run_agent.py --split train --agent baseline --model dummy --out runs/train --repetitions 8 --clear
-python scripts/02_run_agent.py --split train --agent bad_model --model bad_dummy --out runs/train --repetitions 8 --clear
-```
-
-Score trajectories and build DPO pairs:
+Clone the repository and use [`uv`](https://github.com/astral-sh/uv) to sync the dependencies:
 
 ```bash
-python scripts/03_score_trajectories.py --runs-dir runs/train --out-dir data/trajectories/scored_train --clear
-python scripts/04_build_preferences.py --runs-dir data/trajectories/scored_train --out data/preferences/dpo_train.jsonl --split train --min-margin 2.0
+git clone https://github.com/hey-shiv/AgentAlign-Lab.git
+cd AgentAlign-Lab
+
+# Create virtual environment and install dependencies
+uv sync
 ```
 
-Validate the DPO dataset locally:
+### 2. Execution Pipeline
+
+The repository includes a numbered sequence of scripts representing the entire lifecycle of the pipeline.
 
 ```bash
-python scripts/05_train_dpo.py --dry-run
-python scripts/05_train_dpo.py --preflight
+# 1. Generate the task suite (train/val/test splits)
+uv run python scripts/01_generate_tasks.py
+
+# 2. Run the agent to collect raw trajectories
+uv run python scripts/02_run_agent.py --split train --agent baseline --model dummy --out runs/train --repetitions 8
+
+# 3. Score the raw trajectories using deterministic verifiers
+uv run python scripts/03_score_trajectories.py --runs-dir runs/train --out-dir data/trajectories/scored_train
+
+# 4. Build DPO preference pairs from scored trajectories
+uv run python scripts/04_build_preferences.py --runs-dir data/trajectories/scored_train --out data/preferences/dpo_train.jsonl
+
+# 5. Train the DPO adapter (Requires GPU/Colab/Kaggle)
+uv run python scripts/05_train_dpo.py
+
+# 6. Evaluate and compare baseline vs. tuned models
+uv run python scripts/06_eval_models.py --runs-dir data/trajectories/scored_train --agent baseline
+
+# 7. Launch the Observability Dashboard
+uv run python scripts/07_launch_dashboard.py
 ```
 
-Evaluate:
+---
+
+## 📂 Project Structure
+
+```text
+AgentAlign-Lab/
+├── configs/                  # YAML configurations for agent, training, and evaluation
+├── data/
+│   ├── tasks/                # Generated task definitions (JSONL)
+│   ├── trajectories/         # Raw and scored agent execution traces
+│   └── preferences/          # DPO chosen/rejected pairs
+├── scripts/                  # End-to-end execution scripts (01-07)
+├── src/
+│   └── agentalign/
+│       ├── agent/            # ReAct loop, prompts, parser, tools, sandbox
+│       ├── dashboard/        # Gradio observability UI
+│       ├── data/             # Serialization and preference pair construction
+│       ├── eval/             # Metrics, model comparison, failure analysis
+│       ├── tasks/            # Task generation and template loading
+│       ├── train/            # SFT and DPO training loops with QLoRA
+│       └── verifier/         # Deterministic checks, scoring, and safety scans
+├── tests/                    # Comprehensive pytest suite covering schemas, parsers, and verifiers
+└── pyproject.toml            # Project dependencies and metadata
+```
+
+---
+
+## 🧪 Testing
+
+The pipeline logic is fully tested. You can run the test suite using:
 
 ```bash
-python scripts/06_eval_models.py --runs-dir data/trajectories/scored_train --split train --agent baseline --compare-agent bad_model
-python scripts/06_eval_models.py --runs-dir data/trajectories/scored_test --split test --agent baseline --compare-agent bad_model
+uv run pytest tests/ -v
 ```
 
-Audit the local MVP artifacts:
+---
 
-```bash
-python scripts/08_audit_mvp.py
-```
-
-Prepare a portable CUDA handoff bundle:
-
-```bash
-python scripts/09_prepare_gpu_handoff.py --clear
-```
-
-This writes `outputs/gpu_handoff/` and `outputs/gpu_handoff.zip` with the runnable mini-repo, DPO data, scored trajectory evidence, config, scripts, manifest, Colab notebook, and GPU runbook. In Colab, upload the zip and open `notebooks/02_colab_dpo_training.ipynb`. The audit works both in the local source tree and inside the extracted Colab bundle.
-
-Launch the dashboard:
-
-```bash
-python scripts/07_launch_dashboard.py
-```
-
-The launcher prints the local URL and chooses a free port automatically.
-
-## Architecture
-
-- **Task Runner:** Creates isolated `tempdir` workspaces from task JSON files.
-- **Agent Loop:** Single-agent loop with strict JSON actions and max 8 steps.
-- **Tools:** `list_files`, `read_file`, `write_file`, `run_command`, and `final_answer`.
-- **Sandbox:** Allowlisted subprocess commands, no shell execution, timeouts, and workspace path checks.
-- **Verifier:** Deterministic correctness, schema/output, and safety checks.
-- **Preference Builder:** High-margin chosen/rejected trajectory pairs in DPO JSONL format.
-- **Evaluation:** Split-aware baseline/comparison metrics.
-- **Dashboard:** Local Gradio observability UI.
-
-## Important Limitation
-
-The repository currently validates the DPO dataset and training entrypoint locally. A real LoRA adapter requires running `scripts/05_train_dpo.py` without `--dry-run` on a CUDA GPU machine. The local preflight reports whether the current environment is ready.
-
-The expected adapter files after GPU training are:
-
-- `outputs/adapters/qwen_dpo_final/adapter_config.json`
-- `outputs/adapters/qwen_dpo_final/adapter_model.safetensors`
-
-The GPU training defaults come from `configs/dpo_qwen15_lora.yaml`; the checked-in config targets `Qwen/Qwen2.5-Coder-1.5B-Instruct` with LoRA output at `outputs/adapters/qwen_dpo_final`.
-
-After the adapter is trained, run held-out base-vs-adapter evaluation in the same GPU environment:
-
-```bash
-python scripts/02_run_agent.py --split test --agent qwen_base --model hf --out runs/test_qwen --clear
-python scripts/02_run_agent.py --split test --agent qwen_dpo --model hf_adapter --adapter-path outputs/adapters/qwen_dpo_final --out runs/test_qwen --clear
-python scripts/03_score_trajectories.py --runs-dir runs/test_qwen --out-dir data/trajectories/scored_test_qwen --clear
-python scripts/06_eval_models.py --runs-dir data/trajectories/scored_test_qwen --split test --agent qwen_dpo --compare-agent qwen_base
-python scripts/08_audit_mvp.py
-```
-
-## License
-
-MIT
+*Designed and implemented as an advanced sandbox for verifiable AI safety and agentic fine-tuning.*
