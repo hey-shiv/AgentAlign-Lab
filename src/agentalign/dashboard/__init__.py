@@ -1,1 +1,1 @@
-"""Dashboard utilities."""
+"""Gradio dashboard for observability and analysis."""

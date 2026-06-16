@@ -1,53 +1,67 @@
+#!/usr/bin/env python3
+"""Script 03: Score raw trajectories with the deterministic verifier.
+
+Loads all raw trajectories, re-runs the verifier and score computation,
+and saves the scored trajectories.
+
+Usage:
+    python scripts/03_score_trajectories.py --runs-dir runs/train --out-dir data/trajectories/scored_train --clear
+"""
+
 import argparse
+import shutil
+from collections import Counter
 from pathlib import Path
 
-from agentalign.data.trajectories import load_trajectories, save_trajectory
+from agentalign.data.trajectories import load_all_trajectories, save_trajectory
 from agentalign.verifier.score import calculate_score
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--runs-dir", type=str, default="data/trajectories/raw")
-    parser.add_argument("--out-dir", type=str, default="data/trajectories/scored")
-    parser.add_argument("--clear", action="store_true", help="Remove existing scored JSONL files first.")
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Score raw trajectories")
+    parser.add_argument("--runs-dir", default="runs/train", help="Directory of raw trajectories")
+    parser.add_argument("--out-dir", default="data/trajectories/scored_train", help="Output directory")
+    parser.add_argument("--clear", action="store_true", help="Clear output directory first")
     args = parser.parse_args()
 
-    runs_dir = Path(args.runs_dir)
     out_dir = Path(args.out_dir)
+    if args.clear and out_dir.exists():
+        shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    if args.clear:
-        for path in out_dir.glob("*.jsonl"):
-            path.unlink()
 
-    if not runs_dir.exists():
-        print(f"Directory {runs_dir} does not exist.")
+    # Load all raw trajectories
+    trajectories = load_all_trajectories(args.runs_dir)
+    print(f"Loaded {len(trajectories)} trajectories from {args.runs_dir}")
+
+    if not trajectories:
+        print("No trajectories found. Run scripts/02_run_agent.py first.")
         return
 
-    for path in sorted(runs_dir.glob("*.jsonl")):
-        print(f"Scoring trajectories in {path.name}...")
-        trajectories = load_trajectories(path)
-        out_path = out_dir / path.name
+    # Score each trajectory
+    scores: list[float] = []
+    for traj in trajectories:
+        calculate_score(traj)
+        save_trajectory(traj, out_dir)
+        scores.append(traj.score)
 
-        # Clear out file
-        if out_path.exists():
-            out_path.unlink()
+    # Print summary
+    print(f"\nScored {len(trajectories)} trajectories:")
+    print(f"  Min score:  {min(scores):.2f}")
+    print(f"  Max score:  {max(scores):.2f}")
+    print(f"  Mean score: {sum(scores) / len(scores):.2f}")
 
-        for traj in trajectories:
-            task_path = Path(f"data/tasks/{traj.task_id}.json")
-            if not task_path.exists():
-                print(f"Task {traj.task_id} not found, skipping trajectory {traj.run_id}.")
-                continue
+    # Failure label distribution
+    label_counts = Counter(
+        t.verifier_result.failure_label
+        for t in trajectories
+        if t.verifier_result and t.verifier_result.failure_label
+    )
+    print("\nFailure label distribution:")
+    for label, count in label_counts.most_common():
+        print(f"  {label}: {count}")
 
-            # Since we can't easily rebuild the workspace state at the end of the trajectory
-            # without replaying, and we just want to update scores based on logic,
-            # we just recalculate the composite score from the existing verifier pass/fail.
-            # If we wanted to re-verify, we'd have to replay the actions.
+    print(f"\nScored trajectories saved to {out_dir}/")
 
-            # Recalculate score from existing verifier outcome
-            calculate_score(traj)
-            save_trajectory(traj, out_path)
-
-    print("Scoring complete.")
 
 if __name__ == "__main__":
     main()

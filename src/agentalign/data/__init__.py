@@ -1,1 +1,1 @@
-"""Data loading and processing utilities."""
+"""Data loading, saving, and preference pair construction."""

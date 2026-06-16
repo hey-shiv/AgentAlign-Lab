@@ -1,1 +1,1 @@
-"""Task generation and management."""
+"""Task loading, generation, and workspace management."""

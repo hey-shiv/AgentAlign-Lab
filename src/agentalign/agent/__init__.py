@@ -1,1 +1,1 @@
-"""Agent loop and orchestration."""
+"""Agent loop, tools, parser, and prompt construction."""

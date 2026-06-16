@@ -6,19 +6,20 @@ lora_alpha: 32
 lora_dropout: 0.05
 target_modules:
   - q_proj
-  - k_proj
   - v_proj
-  - o_proj
-learning_rate: 5.0e-4
+learning_rate: 5.0e-5
 num_epochs: 3
-per_device_train_batch_size: 1
-gradient_accumulation_steps: 8
-max_seq_length: 2048
-beta: 0.1  # DPO temperature
+per_device_train_batch_size: 2
+gradient_accumulation_steps: 4
+max_seq_length: 1024
+beta: 0.1
 warmup_ratio: 0.03
 logging_steps: 10
 save_steps: 100
 eval_steps: 100
+max_length: 1024
+load_in_4bit: true
+bnb_4bit_quant_type: nf4
 
 train_file: "data/preferences/dpo_train.jsonl"
 eval_file: "data/preferences/dpo_val.jsonl"

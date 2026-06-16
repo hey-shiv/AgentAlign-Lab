@@ -1,5 +1,11 @@
 # Evaluation Configuration
 
+baseline_model: "Qwen/Qwen2.5-Coder-1.5B-Instruct"
+tuned_adapter: "outputs/adapters/dpo"
+test_tasks: "data/tasks/test.jsonl"
+output_dir: "outputs/evals"
+device: mps
+
 models:
   - name: "baseline"
     agent: "baseline"
@@ -23,5 +29,3 @@ runs:
   train: "data/trajectories/scored_train"
   val: "data/trajectories/scored_val"
   test: "data/trajectories/scored_test"
-
-output_dir: "outputs/evals"
