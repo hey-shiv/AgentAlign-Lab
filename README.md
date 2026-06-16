@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🧠 AgentAlign Lab</h1>
+  <h1>AgentAlign Lab</h1>
   <p><strong>A verifier-guided preference learning pipeline for terminal agents.</strong></p>
 
   <p>
@@ -14,7 +14,7 @@
 
 **AgentAlign Lab** is a complete, end-to-end pipeline designed to fine-tune small Language Models (like `Qwen2.5-Coder-1.5B-Instruct`) to act as autonomous, reliable ReAct-style terminal agents. It uses deterministic verifiers to automatically score agent trajectories and generate Direct Preference Optimization (DPO) datasets without requiring human labeling.
 
-## ✨ Key Features
+## Key Features
 
 1. **Task Generation**: Deterministically generates isolated coding and data tasks across 5 distinct families (Python bugfixes, data transformations, config repairs, log extractions, and safety traps).
 2. **Agent Execution Loop**: Runs a ReAct-style agent with an allowlisted, sandboxed terminal environment.
@@ -27,7 +27,7 @@
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Core & Schemas**: Python 3.11+, Pydantic v2
 - **Environment Management**: `uv`
@@ -39,7 +39,7 @@
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ### 1. Installation
 
@@ -82,7 +82,7 @@ uv run python scripts/07_launch_dashboard.py
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 AgentAlign-Lab/
@@ -107,7 +107,7 @@ AgentAlign-Lab/
 
 ---
 
-## 🧪 Testing
+## Testing
 
 The pipeline logic is fully tested. You can run the test suite using:
 
