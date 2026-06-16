@@ -2,7 +2,7 @@
   <small><code>RESEARCH &middot; PREFERENCE LEARNING &middot; AGENTIC SYSTEMS</code></small>
 </p>
 
-# AgentAlign Lab
+<h1>Agent<em>Align</em><br>Lab</h1>
 
 <p>
   A pipeline for verifier-guided preference learning in terminal agents.<br>
