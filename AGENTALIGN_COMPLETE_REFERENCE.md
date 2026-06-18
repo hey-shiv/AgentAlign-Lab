@@ -158,7 +158,7 @@ flowchart LR
 ### Module tree diagram
 
 ```mermaid
-graph TB
+flowchart LR
     root["src/agentalign/"]
     root --> schemas["schemas.py<br/>All Pydantic data models"]
     root --> init["__init__.py<br/>Package docstring"]
