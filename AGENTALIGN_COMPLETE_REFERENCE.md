@@ -1219,7 +1219,7 @@ Third, **the data flywheel and data infrastructure.** nference's value compounds
 
 Fourth, **handling noisy and partial data.** My score-margin filtering is directly analogous to dealing with noisy labels in clinical data. Not every EHR entry is clean — you need to filter for high-confidence examples before using them for training. That's exactly what the minimum margin of 2.0 does in my pipeline."
 
-### 4 Curveball Questions
+### 8 Common & Curveball Questions
 
 **Q1: "What if your verifier itself has a bug?"**
 
@@ -1236,6 +1236,22 @@ Fourth, **handling noisy and partial data.** My score-margin filtering is direct
 **Q4: "What's the biggest conceptual weakness of this approach?"**
 
 "The fundamental tension is between verifier coverage and generalization. My verifiers can only judge task completion, not solution quality. Two solutions that both pass pytest might differ hugely in code quality, readability, or maintainability — the verifier can't tell them apart, so DPO can't learn to prefer the better one. The partial credit mechanism in the scoring formula is a small step toward addressing this, but it's still coarse. For production systems, you'd want a hybrid approach: deterministic verifiers for correctness, plus an LLM-as-judge for quality aspects that can't be algorithmically verified."
+
+**Q5: "How would you evaluate if the fine-tuned model actually got better?"**
+
+"I rely on the held-out test split. The evaluation script compares the baseline model and the tuned model against exactly the same tasks that the model has never seen before. It computes the task success rate, average verifier score, and average step count. A real improvement means a statistically significant increase in the test set pass rate. Just looking at the training loss going down during DPO isn't enough; the model has to actually write code that passes the verifier on unseen tasks."
+
+**Q6: "Can you explain the trade-off between the 4-bit quantization used in QLoRA and full-precision training?"**
+
+"4-bit quantization drastically reduces VRAM requirements, allowing a 1.5B parameter model to train on a single free Colab T4 GPU (which has 16GB VRAM) instead of needing multiple A100s. The trade-off is a slight loss in model precision and a potential decrease in final convergence quality compared to full fp16 training. However, the LoRA adapters themselves are trained in higher precision (fp16 or bf16) and act as high-precision updates to the frozen, low-precision base weights, mitigating much of the performance hit."
+
+**Q7: "What happens when your verifier gives partial credit but the DPO algorithm only accepts binary preferences?"**
+
+"That's where the `score_margin` threshold comes in. The verifier assigns a continuous composite score. To convert this into a binary preference pair (chosen vs. rejected), we rank the trajectories for a given task and pair a higher-scoring one with a lower-scoring one, but *only* if the difference in their scores is greater than a minimum margin (I use 2.0). This ensures the chosen trajectory is meaningfully better than the rejected one, filtering out noise where one trajectory got slightly more partial credit for arbitrary reasons."
+
+**Q8: "If we deployed an agentic pipeline like this to production, how would you monitor it?"**
+
+"Monitoring a non-deterministic agent requires tracking both system health and behavioral metrics. I would track the trajectory completion rate, the average step count per task (to watch for looping or degradation), the invalid action rate (to monitor parser health), and the distribution of failure labels over time. If 'invalid_json' or 'forbidden_command' suddenly spikes, the underlying model behavior has drifted. I'd also log all trajectories to a relational database for cohort analysis and use dashboards similar to the Gradio app I built for live observability."
 
 ### Interview bridge map
 
