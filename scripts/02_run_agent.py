@@ -113,13 +113,23 @@ def main() -> None:
     parser.add_argument("--out", default="runs/train", help="Output directory for trajectories")
     parser.add_argument("--repetitions", type=int, default=1, help="Repetitions per task")
     parser.add_argument("--clear", action="store_true", help="Clear output directory first")
+    parser.add_argument("--resume", action="store_true", help="Skip tasks with existing trajectories")
     parser.add_argument("--max-tasks", type=int, default=None, help="Max tasks to run")
+    parser.add_argument("--max-steps", type=int, default=8, help="Max agent steps per trajectory")
+    parser.add_argument("--seed", type=int, default=42, help="Base random seed for reproducibility")
     args = parser.parse_args()
 
     out_dir = Path(args.out)
     if args.clear and out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Build set of existing runs for resume
+    existing_runs: set[str] = set()
+    if args.resume:
+        for f in out_dir.glob("*.jsonl"):
+            # Extract task_id and agent from filename
+            existing_runs.add(f.stem)  # run_id
 
     # Load tasks
     tasks_path = Path(f"data/tasks/{args.split}.jsonl")
@@ -134,6 +144,8 @@ def main() -> None:
         tasks = tasks[:args.max_tasks]
 
     print(f"Running agent '{args.agent}' on {len(tasks)} tasks x {args.repetitions} reps")
+    if args.resume and existing_runs:
+        print(f"  Resume mode: {len(existing_runs)} existing trajectories found")
 
     # Get model callable
     if args.model in _MODEL_CALLABLES:
@@ -150,16 +162,37 @@ def main() -> None:
 
     success_count = 0
     total_count = 0
+    skipped_count = 0
 
     for task in tasks:
         for rep in range(args.repetitions):
             total_count += 1
+
+            # Set seed for reproducibility: unique per task+rep
+            task_seed = args.seed + hash(task.task_id) % 100000 + rep * 1000
+            import random
+            import torch
+            random.seed(task_seed)
+            torch.manual_seed(task_seed)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed_all(task_seed)
+
+            # Check for resume
+            if args.resume and existing_runs:
+                # Check if any existing run matches this task+agent+rep
+                prefix = f"run_" 
+                matches = [r for r in existing_runs
+                           if task.task_id in r and args.agent in r]
+                if len(matches) >= args.repetitions:
+                    skipped_count += 1
+                    continue
+
             try:
                 trajectory = run_agent_loop(
                     task=task,
                     model_callable=model_callable,
                     agent_id=args.agent,
-                    max_steps=8,
+                    max_steps=args.max_steps,
                     model_name=args.model,
                 )
                 save_trajectory(trajectory, out_dir)
@@ -171,9 +204,12 @@ def main() -> None:
             except Exception as exc:
                 print(f"  ✗ {task.task_id} rep={rep} ERROR: {exc}")
 
-    print(f"\nDone. {success_count}/{total_count} succeeded.")
+    if skipped_count:
+        print(f"\nSkipped {skipped_count} existing trajectories (resume mode)")
+    print(f"Done. {success_count}/{total_count - skipped_count} new succeeded.")
     print(f"Trajectories saved to {out_dir}/")
 
 
 if __name__ == "__main__":
     main()
+
