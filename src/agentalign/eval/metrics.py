@@ -3,6 +3,7 @@
 Computes aggregate statistics over a collection of trajectories.
 """
 
+import re
 from collections import Counter
 
 from agentalign.schemas import Trajectory
@@ -61,7 +62,10 @@ def compute_metrics(trajectories: list[Trajectory]) -> dict:
     family_stats = {}
     for t in trajectories:
         # e.g., 'python_bugfix_001' -> 'python_bugfix'
-        family = t.task_id.rsplit('_', 1)[0] if '_' in t.task_id else t.task_id
+        #        'data_transform_001' -> 'data_transform'
+        #        'config_repair_001' -> 'config_repair'
+        # Strip trailing _NNN numeric suffix
+        family = re.sub(r'_\d+$', '', t.task_id) if t.task_id else 'unknown'
         if family not in family_stats:
             family_stats[family] = {"total": 0, "passed": 0, "score": 0.0}
         family_stats[family]["total"] += 1
