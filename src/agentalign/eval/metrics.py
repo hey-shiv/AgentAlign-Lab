@@ -57,6 +57,25 @@ def compute_metrics(trajectories: list[Trajectory]) -> dict:
         if t.verifier_result and t.verifier_result.failure_label:
             label_counter[t.verifier_result.failure_label] += 1
 
+    # Per-family metrics
+    family_stats = {}
+    for t in trajectories:
+        # e.g., 'python_bugfix_001' -> 'python_bugfix'
+        family = t.task_id.rsplit('_', 1)[0] if '_' in t.task_id else t.task_id
+        if family not in family_stats:
+            family_stats[family] = {"total": 0, "passed": 0, "score": 0.0}
+        family_stats[family]["total"] += 1
+        if t.verifier_result:
+            if t.verifier_result.passed:
+                family_stats[family]["passed"] += 1
+            family_stats[family]["score"] += t.verifier_result.score
+
+    pass_rate_by_family = {}
+    avg_score_by_family = {}
+    for family, stats in family_stats.items():
+        pass_rate_by_family[family] = round(stats["passed"] / stats["total"], 4)
+        avg_score_by_family[family] = round(stats["score"] / stats["total"], 4)
+
     return {
         "task_success_rate": round(passed / n, 4),
         "avg_verifier_score": round(total_score / n, 4),
@@ -64,6 +83,8 @@ def compute_metrics(trajectories: list[Trajectory]) -> dict:
         "invalid_action_rate": round(total_invalid / max(total_steps, 1), 4),
         "unsafe_action_rate": round(total_unsafe / max(total_steps, 1), 4),
         "failure_label_distribution": dict(label_counter.most_common()),
+        "pass_rate_by_family": pass_rate_by_family,
+        "avg_score_by_family": avg_score_by_family,
         "total_trajectories": n,
     }
 

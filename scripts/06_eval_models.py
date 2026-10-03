@@ -11,6 +11,8 @@ Usage:
 import argparse
 import json
 from pathlib import Path
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from agentalign.data.trajectories import load_all_trajectories
 from agentalign.eval.failure_labels import print_failure_report
@@ -25,6 +27,7 @@ def main() -> None:
     )
     parser.add_argument("--split", default="train", help="Split name")
     parser.add_argument("--agent", default="baseline", help="Primary agent to evaluate")
+    parser.add_argument("--adapter", default=None, help="Path to PEFT adapter")
     parser.add_argument("--compare-agent", default=None, help="Agent to compare against")
     args = parser.parse_args()
 
@@ -45,8 +48,12 @@ def main() -> None:
     print(f"\n{'Metric':<30} {'Value':>10}")
     print("-" * 42)
     for key, val in agent_metrics.items():
-        if key not in ("failure_label_distribution", "total_trajectories"):
+        if key not in ("failure_label_distribution", "total_trajectories", "pass_rate_by_family", "avg_score_by_family"):
             print(f"  {key:<28} {val:>10}")
+
+    print("\nPer-Family Pass Rate:")
+    for fam, pr in agent_metrics.get("pass_rate_by_family", {}).items():
+        print(f"  {fam:<28} {pr:>10.4f}")
 
     # Compare if requested
     if args.compare_agent:
@@ -80,6 +87,37 @@ def main() -> None:
             "comparison": comparison,
         }, indent=2, default=str))
         print(f"\nComparison saved to {comp_file}")
+        
+        # --- Generate Beautiful Plots ---
+        print("\n📊 Generating Evaluation Plots...")
+        metrics_to_plot = ["pass_rate", "avg_score", "invalid_action_rate"]
+        titles = ["Task Success Rate", "Average Score", "Invalid Action (JSON Error) Rate"]
+        
+        fig, axes = plt.subplots(1, 3, figsize=(15, 6))
+        sns.set_theme(style="whitegrid")
+        
+        for ax, metric, title in zip(axes, metrics_to_plot, titles):
+            if metric in comparison:
+                base_val = comparison[metric]["baseline"]
+                tuned_val = comparison[metric]["tuned"]
+                
+                sns.barplot(
+                    x=["Base Model", "Tuned Model"], 
+                    y=[base_val, tuned_val], 
+                    ax=ax,
+                    palette=["#ff9999", "#66b3ff"]
+                )
+                ax.set_title(title, fontsize=14, pad=15)
+                ax.set_ylabel("Value")
+                
+                # Add value labels on top of bars
+                for i, v in enumerate([base_val, tuned_val]):
+                    ax.text(i, v, f"{v:.2f}", ha='center', va='bottom', fontsize=12, fontweight='bold')
+                    
+        plt.tight_layout()
+        plot_file = output_dir / "comparison_plot.png"
+        plt.savefig(plot_file, dpi=300, bbox_inches='tight')
+        print(f"📈 Plot saved to {plot_file}")
 
     # Print failure report
     print_failure_report(agent_trajs)

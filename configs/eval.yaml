@@ -7,9 +7,9 @@ output_dir: "outputs/evals"
 device: mps
 
 models:
-  - name: "baseline"
-    agent: "baseline"
-  - name: "qwen_dpo_final"
+  - name: "qwen_base"
+    agent: "qwen_base"
+  - name: "qwen_dpo_tuned"
     adapter_path: "outputs/adapters/qwen_dpo_final"
 
 splits:
@@ -26,6 +26,6 @@ metrics:
   - avg_steps
 
 runs:
-  train: "data/trajectories/scored_train"
-  val: "data/trajectories/scored_val"
-  test: "data/trajectories/scored_test"
+  train: "data/trajectories/scored_llm_train"
+  val: "data/trajectories/scored_llm_val"
+  test: "data/trajectories/scored_llm_test"

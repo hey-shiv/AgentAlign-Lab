@@ -47,10 +47,14 @@ def load_trajectory(path: str | Path) -> Trajectory:
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"Trajectory file not found: {path}")
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         if line.strip():
-            return Trajectory.model_validate_json(line)
-    raise ValueError(f"Empty trajectory file: {path}")
+            try:
+                return Trajectory.model_validate_json(line)
+            except Exception as e:
+                print(f"Warning: Skipping corrupted first line in {path}: {e}")
+                continue
+    raise ValueError(f"Empty or corrupted trajectory file: {path}")
 
 
 def load_trajectories(path: str | Path) -> list[Trajectory]:
@@ -66,9 +70,12 @@ def load_trajectories(path: str | Path) -> list[Trajectory]:
     if not path.exists():
         return []
     trajectories: list[Trajectory] = []
-    for line in path.read_text().splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         if line.strip():
-            trajectories.append(Trajectory.model_validate_json(line))
+            try:
+                trajectories.append(Trajectory.model_validate_json(line))
+            except Exception as e:
+                print(f"Warning: Skipping corrupted trajectory line in {path}: {e}")
     return trajectories
 
 

@@ -7,20 +7,22 @@ lora_dropout: 0.05
 target_modules:
   - q_proj
   - v_proj
-learning_rate: 5.0e-5
-num_epochs: 3
+learning_rate: 2.0e-5
+num_epochs: 2
 per_device_train_batch_size: 2
 gradient_accumulation_steps: 4
-max_seq_length: 1024
-beta: 0.1
-warmup_ratio: 0.03
+max_seq_length: 2048
+beta: 0.2
+warmup_ratio: 0.1
 logging_steps: 10
 save_steps: 100
 eval_steps: 100
-max_length: 1024
+max_length: 2048
 load_in_4bit: true
 bnb_4bit_quant_type: nf4
 
 train_file: "data/preferences/dpo_train.jsonl"
 eval_file: "data/preferences/dpo_val.jsonl"
+train_file_llm: "data/preferences/dpo_llm_train.jsonl"
+eval_file_llm: "data/preferences/dpo_llm_val.jsonl"
 output_dir: "outputs/adapters/qwen_dpo_final"

@@ -99,6 +99,7 @@ AgentAlign-Lab/
   <code>react loop - done</code>&nbsp;
   <code>verifiers - done</code>&nbsp;
   <code>dpo pairs - done</code><br><br>
+  <code>llm rollouts - done</code>&nbsp;
   <code>fine-tuning - done</code>&nbsp;
   <code>eval - done</code>
 </p>

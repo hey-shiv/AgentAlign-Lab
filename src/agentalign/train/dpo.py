@@ -91,24 +91,36 @@ def run_dpo(
         print("[DPO] Install with: uv pip install -e '.[ml]'")
         return
 
-    # Check CUDA
-    if not torch.cuda.is_available():
-        print("[DPO] CUDA not available. Cannot train.")
+    # Check CUDA / MPS
+    if not torch.cuda.is_available() and not (hasattr(torch.backends, "mps") and torch.backends.mps.is_available()):
+        print("[DPO] No GPU available (CUDA or MPS). Cannot train.")
         print("[DPO] Use --dry-run for local validation.")
         return
 
-    # Load model in 4-bit
-    print(f"[DPO] Loading model: {model_name}")
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
-    )
+    device = "cuda" if torch.cuda.is_available() else "mps"
+
+    # Load model
+    print(f"[DPO] Loading model: {model_name} on {device}")
+    
+    model_kwargs = {}
+    if device == "cuda":
+        model_kwargs["quantization_config"] = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16,
+        )
+        model_kwargs["device_map"] = "auto"
+    else:
+        # MPS doesn't support bitsandbytes 4-bit
+        model_kwargs["torch_dtype"] = torch.float16
+        
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
-        quantization_config=bnb_config,
-        device_map="auto",
+        **model_kwargs
     )
+    if device == "mps":
+        model.to("mps")
+        
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -150,6 +162,9 @@ def run_dpo(
         fp16=True,
         report_to="none",
         remove_unused_columns=False,
+        warmup_ratio=config.get("warmup_ratio", 0.0),
+        eval_strategy="steps" if eval_dataset else "no",
+        eval_steps=config.get("eval_steps", 100) if eval_dataset else None,
     )
 
     # Train
@@ -170,3 +185,15 @@ def run_dpo(
     trainer.save_model(output_dir)
     tokenizer.save_pretrained(output_dir)
     print(f"[DPO] Adapter saved to {output_dir}")
+
+    # Save metadata
+    import datetime
+    metadata = {
+        "status": "completed",
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "config": config,
+        "train_pairs": len(train_pairs),
+        "eval_pairs": len(eval_pairs),
+    }
+    (Path(output_dir) / "training_metadata.json").write_text(json.dumps(metadata, indent=2))
+    print("[DPO] Training metadata saved.")

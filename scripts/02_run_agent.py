@@ -107,6 +107,9 @@ def main() -> None:
     parser.add_argument("--split", default="train", help="Task split to run (train/val/test)")
     parser.add_argument("--agent", default="baseline", help="Agent ID (baseline/bad_model)")
     parser.add_argument("--model", default="dummy", help="Model name or 'dummy'/'bad_dummy'")
+    parser.add_argument("--adapter", default=None, help="Path to PEFT adapter")
+    parser.add_argument("--temperature", type=float, default=0.7, help="Sampling temperature")
+    parser.add_argument("--device", default="mps", help="Device (mps/cuda/cpu)")
     parser.add_argument("--out", default="runs/train", help="Output directory for trajectories")
     parser.add_argument("--repetitions", type=int, default=1, help="Repetitions per task")
     parser.add_argument("--clear", action="store_true", help="Clear output directory first")
@@ -133,11 +136,17 @@ def main() -> None:
     print(f"Running agent '{args.agent}' on {len(tasks)} tasks x {args.repetitions} reps")
 
     # Get model callable
-    model_callable = _MODEL_CALLABLES.get(args.model)
-    if model_callable is None:
-        print(f"[WARN] Model '{args.model}' not available as scripted callable.")
-        print("[WARN] Using dummy baseline instead. For real models, use HF inference.")
-        model_callable = _baseline_callable
+    if args.model in _MODEL_CALLABLES:
+        model_callable = _MODEL_CALLABLES[args.model]
+    else:
+        print(f"[INFO] Loading HF model: {args.model}")
+        from agentalign.agent.hf_model import make_hf_callable
+        model_callable = make_hf_callable(
+            model_name=args.model,
+            device=args.device,
+            temperature=args.temperature,
+            adapter_path=args.adapter,
+        )
 
     success_count = 0
     total_count = 0

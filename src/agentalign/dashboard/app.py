@@ -28,11 +28,16 @@ PRIMARY_SCORED_DIRS = [
     Path("data/trajectories/scored_train"),
     Path("data/trajectories/scored_val"),
     Path("data/trajectories/scored_test"),
+    Path("data/trajectories/scored_llm_train"),
+    Path("data/trajectories/scored_llm_val"),
+    Path("data/trajectories/scored_llm_test"),
 ]
 LEGACY_SCORED_DIR = Path("data/trajectories/scored")
 PREF_PATHS = [
     Path("data/preferences/dpo_train.jsonl"),
     Path("data/preferences/dpo_val.jsonl"),
+    Path("data/preferences/dpo_llm_train.jsonl"),
+    Path("data/preferences/dpo_llm_val.jsonl"),
 ]
 
 
