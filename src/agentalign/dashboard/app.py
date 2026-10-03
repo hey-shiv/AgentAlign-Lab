@@ -194,6 +194,95 @@ def _failure_table():
     return [[tag, count, examples[tag]] for tag, count in counter.most_common()]
 
 
+def _side_by_side_task_ids():
+    """Return task_ids that have trajectories from multiple agents."""
+    by_task: dict[str, set[str]] = defaultdict(set)
+    for traj in _load_trajectories():
+        agent = traj.agent_id or traj.model or "unknown"
+        by_task[traj.task_id].add(agent)
+    return sorted(tid for tid, agents in by_task.items() if len(agents) > 1)
+
+
+def _show_side_by_side(task_id):
+    """Show trajectories from different agents on the same task."""
+    by_agent: dict[str, list] = defaultdict(list)
+    for traj in _load_trajectories():
+        if traj.task_id == task_id:
+            agent = traj.agent_id or traj.model or "unknown"
+            by_agent[agent].append(traj)
+
+    lines: list[str] = []
+    for agent in sorted(by_agent):
+        trajs = by_agent[agent]
+        t = trajs[0]
+        passed = t.verifier_result.passed if t.verifier_result else False
+        score = t.verifier_result.score if t.verifier_result else 0
+        unsafe = t.verifier_result.unsafe_actions if t.verifier_result else 0
+        n_steps = len(t.steps)
+        status = "✅ PASS" if passed else "❌ FAIL"
+
+        lines.append(
+            f"### {agent} — {status} "
+            f"(score={score:.1f}, steps={n_steps}, unsafe={unsafe})"
+        )
+        for step in t.steps:
+            action_str = f"`{step.action}`"
+            args_short = json.dumps(step.args, sort_keys=True)[:80] if step.args else ""
+            thought_short = (step.thought or "")[:60]
+            lines.append(
+                f"- Step {step.step_index}: {thought_short}… → "
+                f"{action_str}({args_short})"
+            )
+            obs = (step.observation or "")[:120]
+            if obs:
+                lines.append(f"  > {obs}")
+        lines.append("")
+
+    return "\n".join(lines) if lines else "No trajectories for this task."
+
+
+def _eval_results_summary():
+    """Load eval_results.json and format as a summary string."""
+    eval_path = Path("outputs/evals/eval_results.json")
+    if not eval_path.exists():
+        return "No evaluation results found. Run the GPU eval notebook first."
+
+    results = json.loads(eval_path.read_text())
+    lines = ["## Evaluation Results\n"]
+
+    for agent in ["qwen_base", "qwen_sft", "qwen_dpo"]:
+        if agent not in results:
+            continue
+        m = results[agent]
+        lines.append(
+            f"**{agent}**: {m['passed']}/{m['total']} pass "
+            f"({m['pass_rate']*100:.1f}%), "
+            f"unsafe={m.get('unsafe_actions', 0)}, "
+            f"avg_steps={m.get('avg_steps', 0)}"
+        )
+
+    lines.append("\n### Bootstrap 95% CIs")
+    for key, label in [
+        ("dpo_vs_base", "DPO − Base"),
+        ("sft_vs_base", "SFT − Base"),
+        ("dpo_vs_sft", "DPO − SFT"),
+    ]:
+        if key in results:
+            r = results[key]
+            spans = (
+                "⚠️ spans zero"
+                if r["ci_lo"] <= 0 <= r["ci_hi"]
+                else "✅ significant"
+            )
+            lines.append(
+                f"- **{label}**: {r['diff']:+.4f} "
+                f"[{r['ci_lo']:+.4f}, {r['ci_hi']:+.4f}] "
+                f"p={r.get('p_value', 'N/A')} ({spans})"
+            )
+
+    return "\n".join(lines)
+
+
 # ---------------------------------------------------------------------------
 # App builder
 # ---------------------------------------------------------------------------
@@ -257,12 +346,27 @@ def build_app():
                 outputs=[prompt_box, chosen_box, rejected_box, scores_box],
             )
 
-        # Tab 5: Baseline vs Tuned
+        # Tab 5: Baseline vs Tuned (enhanced)
         with gr.Tab("Baseline vs Tuned"):
+            eval_md = gr.Markdown()
+            app.load(_eval_results_summary, outputs=eval_md)
             gr.Dataframe(
                 headers=["agent", "runs", "pass_rate", "avg_score", "avg_steps"],
                 value=_model_comparison_table(),
                 interactive=False,
+            )
+
+            # Side-by-side trajectory comparison
+            gr.Markdown("### Side-by-Side Trajectory Comparison")
+            sbs_selector = gr.Dropdown(
+                label="Task (with multiple agents)",
+                choices=_side_by_side_task_ids(),
+            )
+            sbs_output = gr.Markdown()
+            sbs_selector.change(
+                _show_side_by_side,
+                inputs=sbs_selector,
+                outputs=sbs_output,
             )
 
         # Tab 6: Failure Analysis
