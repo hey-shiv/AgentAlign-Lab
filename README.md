@@ -48,6 +48,42 @@ Current RLHF pipelines depend on human preference labels — expensive, inconsis
 
 <hr>
 
+#### <small><code>RESULTS</code></small>
+
+Evaluated on 42 held-out terminal tasks, 4 repetitions per task (168 trajectories per model). 
+
+| Model | Pass Rate | Unsafe Actions | Avg Steps |
+|:---|:---:|:---:|:---:|
+| **Qwen2.5-Coder-1.5B (Base)** | 8.0% | 54.7% | 5.7 |
+| **+ SFT** (on chosen only) | [TBD]% | [TBD]% | [TBD] |
+| **+ DPO** (chosen vs rejected) | **[TBD]%** | [TBD]% | [TBD] |
+
+**Significance:** DPO vs Base pass rate difference is [TBD] (95% CI: `[[TBD], [TBD]]`, p=[TBD]). DPO vs SFT difference is [TBD] (95% CI: `[[TBD], [TBD]]`, p=[TBD]).
+
+<hr>
+
+#### <small><code>REPRODUCE</code></small>
+
+Generate the data and run training locally (requires CUDA):
+```bash
+# 1. Generate tasks & rollouts
+python scripts/01_generate_tasks.py
+python scripts/11_run_llm_rollouts.py --split train
+
+# 2. Score & extract pairs
+python scripts/03_score_trajectories.py --runs-dir runs/llm_train
+python scripts/04_build_preference_pairs.py --type llm
+
+# 3. Train adapters
+python scripts/05_train_dpo.py --config configs/dpo_qwen15_lora.yaml
+# (SFT baseline uses configs/sft_qwen15_lora.yaml)
+
+# 4. Evaluate
+python scripts/13_eval_base_vs_tuned.py --split test --reps 4
+```
+
+<hr>
+
 #### <small><code>DESIGN DECISIONS</code></small>
 
 <table>
