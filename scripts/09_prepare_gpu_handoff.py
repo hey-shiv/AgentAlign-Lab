@@ -21,6 +21,7 @@ HANDOFF_PATHS = [
     "scripts",
     "tests",
     "notebooks/02_colab_dpo_training.ipynb",
+    "notebooks/03_kaggle_gpu_pipeline.ipynb",
     "outputs/adapters/dpo_run/training_metadata.json",
 ]
 
