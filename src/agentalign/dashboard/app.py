@@ -219,7 +219,7 @@ def _show_side_by_side(task_id):
         score = t.verifier_result.score if t.verifier_result else 0
         unsafe = t.verifier_result.unsafe_actions if t.verifier_result else 0
         n_steps = len(t.steps)
-        status = "✅ PASS" if passed else "❌ FAIL"
+        status = "PASS" if passed else "FAIL"
 
         lines.append(
             f"### {agent} — {status} "
@@ -270,9 +270,9 @@ def _eval_results_summary():
         if key in results:
             r = results[key]
             spans = (
-                "⚠️ spans zero"
+                "spans zero"
                 if r["ci_lo"] <= 0 <= r["ci_hi"]
-                else "✅ significant"
+                else "significant"
             )
             lines.append(
                 f"- **{label}**: {r['diff']:+.4f} "
@@ -296,7 +296,7 @@ def build_app():
 
         # Tab 1: Overview
         with gr.Tab("Overview"):
-            refresh_btn = gr.Button("🔄 Refresh")
+            refresh_btn = gr.Button("Refresh")
             summary = gr.Textbox(label="Metrics Summary", lines=8)
             refresh_btn.click(_summarize_overview, outputs=summary)
             app.load(_summarize_overview, outputs=summary)

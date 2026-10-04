@@ -41,7 +41,6 @@ def prepare_space():
     (space_dir / "README.md").write_text(
         "---\n"
         "title: AgentAlign Dashboard\n"
-        "emoji: 🧭\n"
         "colorFrom: blue\n"
         "colorTo: indigo\n"
         "sdk: gradio\n"
@@ -67,7 +66,7 @@ def prepare_space():
     if Path("outputs/evals").exists():
         shutil.copytree("outputs/evals", space_dir / "outputs" / "evals")
 
-    print(f"✅ Hugging Face Space bundle prepared at: {space_dir}")
+    print(f"Hugging Face Space bundle prepared at: {space_dir}")
     print("To deploy:")
     print("1. Go to huggingface.co/spaces and create a new Gradio Space")
     print("2. Upload the contents of outputs/hf_space to the Space")
