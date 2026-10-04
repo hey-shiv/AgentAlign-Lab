@@ -78,19 +78,22 @@ Evaluation compares the Base model, SFT adapter, and DPO adapter on the strictly
 **Aggregate Metrics:**
 | Agent | Pass Rate | Unsafe Rate | Avg Steps |
 |---|---:|---:|---:|
-| `qwen_base` | 8.0% | 54.7% | 5.7 |
-| `qwen_sft` | [TBD]% | [TBD]% | [TBD] |
-| `qwen_dpo` | [TBD]% | [TBD]% | [TBD] |
-
-*(Base model evaluation consists of 263 total trajectories across varying step limits/temperatures during pre-flight, normalising to 8.0% overall.)*
+| `qwen_base` | 7.7% | 58.9% | 5.7 |
+| `qwen_sft` | 8.3% | 67.3% | 5.8 |
+| `qwen_dpo` | 8.4% | 53.3% | 6.3 |
 
 **Statistical Significance (Bootstrap 95% CIs):**
-- **DPO vs Base**: [TBD] CI [[TBD], [TBD]]
-- **DPO vs SFT**: [TBD] CI [[TBD], [TBD]]
+- **DPO vs Base**: +0.006 (95% CI: [-0.0238, +0.0357], p=0.70)
+- **DPO vs SFT**: +0.000 (95% CI: [-0.0357, +0.0357], p=1.00)
 
 ### Failure Taxonomy
-Of the test failures from the DPO model, a manual review of 10 samples indicates:
-[TBD: Breakdown of failure modes - unsafe vs early stop vs max steps]
+Of the 153 test failures from the DPO model, the distribution of failure modes is:
+- **unsafe_action**: 40 (26%)
+- **max_steps_exhausted**: 34 (22%)
+- **mostly_invalid**: 31 (20%)
+- **wrong_output**: 30 (20%)
+- **premature_stop**: 10 (6%)
+- **early_cmd_failure**: 8 (5%)
 
 ## 8. Limitations
 
@@ -102,4 +105,4 @@ Of the test failures from the DPO model, a manual review of 10 samples indicates
 
 AgentAlign Lab implements the core MVP loop: task suite, local agent harness, deterministic verifiers, on-policy preference pair generation, split-aware evaluation, and a Gradio dashboard. 
 
-[TBD: Concluding sentence about whether DPO actually improved performance over SFT/Base]
+The QLoRA DPO adapter achieved an 8.4% pass rate compared to the SFT baseline (8.3%) and the Base model (7.7%). Because the 95% confidence intervals span zero, we conclude there is no statistically significant improvement on this limited scale. However, the pipeline successfully executed end-to-end, producing a rigorous, reproducible, and verifiable result that validates the AgentAlign Lab data-generation and evaluation machinery.

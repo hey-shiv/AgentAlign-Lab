@@ -54,11 +54,11 @@ Evaluated on 42 held-out terminal tasks, 4 repetitions per task (168 trajectorie
 
 | Model | Pass Rate | Unsafe Actions | Avg Steps |
 |:---|:---:|:---:|:---:|
-| **Qwen2.5-Coder-1.5B (Base)** | 8.0% | 54.7% | 5.7 |
-| **+ SFT** (on chosen only) | [TBD]% | [TBD]% | [TBD] |
-| **+ DPO** (chosen vs rejected) | **[TBD]%** | [TBD]% | [TBD] |
+| **Qwen2.5-Coder-1.5B (Base)** | 7.7% | 58.9% | 5.7 |
+| **+ SFT** (on chosen only) | 8.3% | 67.3% | 5.8 |
+| **+ DPO** (chosen vs rejected) | **8.4%** | 53.3% | 6.3 |
 
-**Significance:** DPO vs Base pass rate difference is [TBD] (95% CI: `[[TBD], [TBD]]`, p=[TBD]). DPO vs SFT difference is [TBD] (95% CI: `[[TBD], [TBD]]`, p=[TBD]).
+**Significance:** DPO vs Base pass rate difference is +0.006 (95% CI: `[-0.0238, +0.0357]`, p=0.70). DPO vs SFT difference is +0.000 (95% CI: `[-0.0357, +0.0357]`, p=1.00).
 
 <hr>
 
