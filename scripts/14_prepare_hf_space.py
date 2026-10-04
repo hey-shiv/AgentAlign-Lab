@@ -11,13 +11,44 @@ def prepare_space():
     space_dir.mkdir(parents=True)
 
     # Copy the dashboard code
-    shutil.copy("src/agentalign/dashboard/app.py", space_dir / "app.py")
+    code = Path("src/agentalign/dashboard/app.py").read_text()
+    # ZeroGPU Spaces fail at startup unless a @spaces.GPU function exists.
+    # The dashboard needs no GPU, so register a no-op before launch() blocks.
+    stub = (
+        "try:\n"
+        "    import spaces\n\n"
+        "    @spaces.GPU\n"
+        "    def _zerogpu_noop():\n"
+        "        return None\n"
+        "except ImportError:\n"
+        "    pass\n\n\n"
+    )
+    marker = 'if __name__ == "__main__":'
+    assert marker in code
+    (space_dir / "app.py").write_text(code.replace(marker, stub + marker, 1))
 
     # Create requirements.txt
     (space_dir / "requirements.txt").write_text(
-        "gradio>=4.0.0\n"
+        "gradio==5.49.1\n"
+        "huggingface_hub<1.0\n"
         "pandas>=2.0.0\n"
         "pydantic>=2.0.0\n"
+    )
+
+    # Space config: sdk_version must match the pinned gradio, otherwise the
+    # Space installs an old gradio that breaks against newer huggingface_hub
+    # (ImportError: cannot import name 'HfFolder').
+    (space_dir / "README.md").write_text(
+        "---\n"
+        "title: AgentAlign Dashboard\n"
+        "emoji: 🧭\n"
+        "colorFrom: blue\n"
+        "colorTo: indigo\n"
+        "sdk: gradio\n"
+        "sdk_version: 5.49.1\n"
+        "app_file: app.py\n"
+        "pinned: false\n"
+        "---\n"
     )
 
     # We also need to copy the minimal schemas and data loading code
