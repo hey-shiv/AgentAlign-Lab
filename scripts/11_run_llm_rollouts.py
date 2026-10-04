@@ -101,7 +101,7 @@ def main() -> None:
         ]
         run_cmd(cmd_pref)
 
-    print("\n✅ LLM Rollouts Pipeline Complete!")
+    print("\nLLM Rollouts Pipeline Complete!")
 
     # Print summary
     for split in splits:

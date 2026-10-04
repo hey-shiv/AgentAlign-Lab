@@ -198,11 +198,11 @@ def main() -> None:
                 save_trajectory(trajectory, out_dir)
                 if trajectory.success:
                     success_count += 1
-                status = "✓" if trajectory.success else "✗"
+                status = "OK" if trajectory.success else "FAIL"
                 score = trajectory.score
                 print(f"  {status} {task.task_id} rep={rep} score={score:.1f}")
             except Exception as exc:
-                print(f"  ✗ {task.task_id} rep={rep} ERROR: {exc}")
+                print(f"  {task.task_id} rep={rep} ERROR: {exc}")
 
     if skipped_count:
         print(f"\nSkipped {skipped_count} existing trajectories (resume mode)")

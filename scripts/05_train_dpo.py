@@ -39,16 +39,16 @@ def main() -> None:
         train_path = Path(train_file)
         if train_path.exists():
             n_train = sum(1 for line in train_path.read_text().splitlines() if line.strip())
-            print(f"✓ Training data: {n_train} pairs ({train_file})")
+            print(f"Training data: {n_train} pairs ({train_file})")
         else:
-            print(f"✗ Training data not found: {train_file}")
+            print(f"Training data not found: {train_file}")
 
         # Check eval data
         eval_file = config.get("eval_file", "data/preferences/dpo_val.jsonl")
         eval_path = Path(eval_file)
         if eval_path.exists():
             n_eval = sum(1 for line in eval_path.read_text().splitlines() if line.strip())
-            print(f"✓ Eval data: {n_eval} pairs ({eval_file})")
+            print(f"Eval data: {n_eval} pairs ({eval_file})")
         else:
             print(f"  Eval data not found: {eval_file} (optional)")
 
@@ -56,21 +56,21 @@ def main() -> None:
         try:
             import torch
             if torch.cuda.is_available():
-                print(f"✓ CUDA available: {torch.cuda.get_device_name(0)}")
+                print(f"CUDA available: {torch.cuda.get_device_name(0)}")
             else:
-                print("✗ CUDA not available (training requires GPU)")
+                print("CUDA not available (training requires GPU)")
                 if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
                     print("  MPS (Apple Silicon) detected — not sufficient for QLoRA")
         except ImportError:
-            print("✗ PyTorch not installed")
+            print("PyTorch not installed")
 
         # Check ML dependencies
         for pkg in ["transformers", "trl", "peft", "datasets", "bitsandbytes"]:
             try:
                 __import__(pkg)
-                print(f"✓ {pkg} available")
+                print(f"{pkg} available")
             except ImportError:
-                print(f"✗ {pkg} not installed")
+                print(f"{pkg} not installed")
 
         print(f"\nModel: {config.get('model_name')}")
         print(f"Output: {config.get('output_dir')}")

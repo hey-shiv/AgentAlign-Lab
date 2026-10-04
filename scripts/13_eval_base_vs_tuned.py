@@ -71,7 +71,7 @@ def main() -> None:
         "--compare-agent", "qwen_dpo_tuned"
     ])
     
-    print("\n✅ Evaluation Pipeline Complete!")
+    print("\nEvaluation Pipeline Complete!")
     print(f"Check outputs/evals/comparison.json for details.")
 
 if __name__ == "__main__":

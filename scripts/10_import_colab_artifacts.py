@@ -65,12 +65,12 @@ def main() -> None:
             shutil.copy2(src, dst)
 
         imported += 1
-        print(f"  ✓ {artifact}")
+        print(f"  {artifact}")
 
     # Cleanup
     shutil.rmtree(extract_dir)
 
-    print(f"\n✅ Imported {imported} artifacts from {zip_path}")
+    print(f"\nImported {imported} artifacts from {zip_path}")
 
     # Show summary if eval results exist
     eval_path = Path("outputs/evals/eval_results.json")

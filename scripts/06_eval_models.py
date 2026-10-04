@@ -89,7 +89,7 @@ def main() -> None:
         print(f"\nComparison saved to {comp_file}")
         
         # --- Generate Beautiful Plots ---
-        print("\n📊 Generating Evaluation Plots...")
+        print("\nGenerating Evaluation Plots...")
         metrics_to_plot = ["pass_rate", "avg_score", "invalid_action_rate"]
         titles = ["Task Success Rate", "Average Score", "Invalid Action (JSON Error) Rate"]
         
@@ -117,7 +117,7 @@ def main() -> None:
         plt.tight_layout()
         plot_file = output_dir / "comparison_plot.png"
         plt.savefig(plot_file, dpi=300, bbox_inches='tight')
-        print(f"📈 Plot saved to {plot_file}")
+        print(f"Plot saved to {plot_file}")
 
     # Print failure report
     print_failure_report(agent_trajs)

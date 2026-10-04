@@ -30,11 +30,11 @@ def main() -> None:
     out_dir = Path(args.out_dir)
 
     if not Path(adapter_path).exists():
-        print(f"❌ Error: Adapter path {adapter_path} not found.")
+        print(f"Error: Adapter path {adapter_path} not found.")
         print("Did you finish DPO training (Step 2) yet?")
         return
 
-    print(f"🚀 Loading base model: {base_model_name}")
+    print(f"Loading base model: {base_model_name}")
     # We load in fp16 to ensure the merged weights are high quality but fit in RAM
     tokenizer = AutoTokenizer.from_pretrained(base_model_name)
     base_model = AutoModelForCausalLM.from_pretrained(
@@ -44,18 +44,18 @@ def main() -> None:
         low_cpu_mem_usage=True
     )
 
-    print(f"🔌 Loading LoRA adapter from: {adapter_path}")
+    print(f"Loading LoRA adapter from: {adapter_path}")
     model = PeftModel.from_pretrained(base_model, adapter_path)
 
-    print("🔄 Merging LoRA weights permanently into base model...")
+    print("Merging LoRA weights permanently into base model...")
     model = model.merge_and_unload()
 
-    print(f"💾 Saving standalone final model to: {out_dir}")
+    print(f"Saving standalone final model to: {out_dir}")
     out_dir.mkdir(parents=True, exist_ok=True)
     model.save_pretrained(out_dir)
     tokenizer.save_pretrained(out_dir)
 
-    print("✅ Successfully exported final merged model!")
+    print("Successfully exported final merged model!")
     print(f"You can now upload {out_dir} to HuggingFace or run it with Ollama/llama.cpp.")
 
 
