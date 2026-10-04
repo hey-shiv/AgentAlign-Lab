@@ -292,7 +292,7 @@ def build_app():
     import gradio as gr
 
     with gr.Blocks(title="AgentAlign Dashboard") as app:
-        gr.Markdown("# 🧠 AgentAlign Lab Dashboard")
+        gr.Markdown("# AgentAlign Lab Dashboard")
 
         # Tab 1: Overview
         with gr.Tab("Overview"):
