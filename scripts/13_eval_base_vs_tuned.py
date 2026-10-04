@@ -45,7 +45,7 @@ def main() -> None:
             "--out", runs_dir,
             "--repetitions", str(args.reps),
         ]
-        if args.adapter:
+        if agent["adapter"]:
             cmd_run.extend(["--adapter", agent["adapter"]])
         if args.max_tasks:
             cmd_run.extend(["--max-tasks", str(args.max_tasks)])

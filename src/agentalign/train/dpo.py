@@ -7,6 +7,7 @@ Requires the [ml] optional dependency group.
 """
 
 import json
+import inspect
 from pathlib import Path
 
 import yaml
@@ -110,6 +111,10 @@ def run_dpo(
             bnb_4bit_compute_dtype=torch.float16,
         )
         model_kwargs["device_map"] = "auto"
+        # Qwen checkpoints advertise bfloat16 by default. A Kaggle T4 uses
+        # fp16 training with GradScaler; mixing the two makes Accelerate fail
+        # while unscaling bfloat16 gradients.
+        model_kwargs["torch_dtype"] = torch.float16
     else:
         # MPS doesn't support bitsandbytes 4-bit
         model_kwargs["torch_dtype"] = torch.float16
@@ -149,33 +154,74 @@ def run_dpo(
         })
 
     # Training config
+    # TRL has changed DPOConfig's constructor several times. In particular,
+    # some Kaggle images do not expose warmup_ratio. Filter configuration keys
+    # against the installed version so a cloud image does not fail before
+    # training begins.
+    training_kwargs = {
+        "output_dir": output_dir,
+        "num_train_epochs": num_epochs,
+        "per_device_train_batch_size": batch_size,
+        "gradient_accumulation_steps": grad_accum,
+        "learning_rate": lr,
+        "beta": beta,
+        "max_length": max_length,
+        "logging_steps": config.get("logging_steps", 10),
+        "save_steps": config.get("save_steps", 100),
+        "fp16": True,
+        "report_to": "none",
+        "remove_unused_columns": False,
+        "warmup_ratio": config.get("warmup_ratio", 0.0),
+        "eval_strategy": "steps" if eval_dataset else "no",
+        "eval_steps": config.get("eval_steps", 100) if eval_dataset else None,
+    }
+    supported_training_args = inspect.signature(TRLDPOConfig).parameters
+    unsupported_training_args = sorted(set(training_kwargs) - set(supported_training_args))
+    if unsupported_training_args:
+        print(
+            "[DPO] Installed TRL does not support these configuration keys; "
+            f"skipping them: {', '.join(unsupported_training_args)}"
+        )
     training_args = TRLDPOConfig(
-        output_dir=output_dir,
-        num_train_epochs=num_epochs,
-        per_device_train_batch_size=batch_size,
-        gradient_accumulation_steps=grad_accum,
-        learning_rate=lr,
-        beta=beta,
-        max_length=max_length,
-        logging_steps=config.get("logging_steps", 10),
-        save_steps=config.get("save_steps", 100),
-        fp16=True,
-        report_to="none",
-        remove_unused_columns=False,
-        warmup_ratio=config.get("warmup_ratio", 0.0),
-        eval_strategy="steps" if eval_dataset else "no",
-        eval_steps=config.get("eval_steps", 100) if eval_dataset else None,
+        **{
+            key: value
+            for key, value in training_kwargs.items()
+            if key in supported_training_args and value is not None
+        }
     )
 
     # Train
-    trainer = DPOTrainer(
-        model=model,
-        args=training_args,
-        train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
-        processing_class=tokenizer,
-        peft_config=peft_config,
-    )
+    trainer_kwargs = {
+        "model": model,
+        "args": training_args,
+        "train_dataset": train_dataset,
+        "eval_dataset": eval_dataset,
+        "peft_config": peft_config,
+    }
+    trainer_parameters = inspect.signature(DPOTrainer.__init__).parameters
+    # TRL renamed tokenizer to processing_class. Support both release lines.
+    if "processing_class" in trainer_parameters:
+        trainer_kwargs["processing_class"] = tokenizer
+    elif "tokenizer" in trainer_parameters:
+        trainer_kwargs["tokenizer"] = tokenizer
+    else:
+        raise RuntimeError("The installed TRL DPOTrainer has no tokenizer-compatible argument.")
+    trainer = DPOTrainer(**trainer_kwargs)
+
+    # Some Kaggle TRL/PEFT combinations create the LoRA adapter weights as
+    # bfloat16 even when the 4-bit model is loaded for fp16 T4 training.
+    # GradScaler cannot unscale bfloat16 gradients on a T4. Convert only
+    # trainable adapter weights; leave the quantized base model untouched.
+    bf16_trainable = [
+        name
+        for name, parameter in trainer.model.named_parameters()
+        if parameter.requires_grad and parameter.dtype == torch.bfloat16
+    ]
+    if bf16_trainable:
+        for name, parameter in trainer.model.named_parameters():
+            if parameter.requires_grad and parameter.dtype == torch.bfloat16:
+                parameter.data = parameter.data.to(torch.float16)
+        print(f"[DPO] Converted {len(bf16_trainable)} trainable bfloat16 parameters to fp16 for T4.")
 
     print("[DPO] Starting training...")
     trainer.train()
