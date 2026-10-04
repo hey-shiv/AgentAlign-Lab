@@ -57,6 +57,10 @@ class HFPolicy:
         if adapter_path:
             from peft import PeftModel
 
+            from agentalign.v2.compat import patch_incompatible_torchao
+
+            patch_incompatible_torchao()
+
             model = PeftModel.from_pretrained(model, adapter_path).merge_and_unload()
         self.model = model.to(self.device).eval()
 

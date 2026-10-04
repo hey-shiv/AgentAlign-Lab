@@ -138,3 +138,21 @@ def test_jsonl_roundtrip(tmp_path):
     assert v2data.write_jsonl(rows, tmp_path / "x.jsonl") == 2
     assert v2data.read_jsonl(tmp_path / "x.jsonl") == rows
     assert json.loads((tmp_path / "x.jsonl").read_text().splitlines()[0]) == {"a": 1}
+
+
+def test_torchao_shim_only_patches_incompatible_versions(monkeypatch):
+    import importlib.metadata
+    import importlib.util
+
+    import peft.import_utils as import_utils
+
+    from agentalign.v2 import compat
+
+    original = import_utils.is_torchao_available
+    monkeypatch.setattr(import_utils, "is_torchao_available", original)
+    monkeypatch.setattr(importlib.util, "find_spec", lambda name, *a, **k: None if name == "torchao" else object())
+    assert compat.patch_incompatible_torchao() is False
+    monkeypatch.setattr(importlib.util, "find_spec", lambda name, *a, **k: object())
+    monkeypatch.setattr(importlib.metadata, "version", lambda name: "0.10.0")
+    assert compat.patch_incompatible_torchao() is True
+    assert import_utils.is_torchao_available() is False

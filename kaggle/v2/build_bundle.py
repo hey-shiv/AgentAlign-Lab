@@ -126,6 +126,10 @@ if os.environ.get("AGENTALIGN_SKIP_PIP") != "1":
                        capture_output=True, text=True)
     print(r.stdout[-2000:], r.stderr[-4000:])
     r.check_returncode()
+    # Kaggle ships torchao 0.10, which peft 0.19 rejects when loading LoRA adapters. Nothing here uses torchao.
+    subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "-q", "torchao"], capture_output=True, text=True)
+import importlib.util
+print("torchao present:", importlib.util.find_spec("torchao") is not None, "(the code also guards against an old torchao)")
 import torch
 N_GPU = torch.cuda.device_count()
 print("torch", torch.__version__, "| GPUs:", N_GPU, [torch.cuda.get_device_name(i) for i in range(N_GPU)])

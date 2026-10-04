@@ -138,6 +138,10 @@ def _lora(cfg: dict):
 
 def _run(kind: str, model_path: str, train_rows: list[dict], eval_rows: list[dict], cfg: dict, output_dir: str) -> dict:
     import torch
+
+    from agentalign.v2.compat import patch_incompatible_torchao
+
+    patch_incompatible_torchao()
     from datasets import Dataset
     from transformers import AutoTokenizer
 
@@ -222,6 +226,10 @@ def train_dpo(model_path: str, train_rows: list[dict], eval_rows: list[dict], cf
 def merge_adapter(base_model: str, adapter_dir: str, out_dir: str) -> str:
     """Merge a LoRA adapter into an fp16 copy of the base model and save it."""
     import torch
+
+    from agentalign.v2.compat import patch_incompatible_torchao
+
+    patch_incompatible_torchao()
     from peft import PeftModel
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
