@@ -143,3 +143,7 @@ data/preferences/
 *.pt
 *.bin
 runs/
+
+# Kaggle v2 bundle build artifacts (rebuild with kaggle/v2/build_bundle.py)
+kaggle/v2/dataset/
+kaggle/v2/*.zip
