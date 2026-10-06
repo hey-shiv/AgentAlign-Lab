@@ -1,0 +1,26 @@
+{
+  "sft_train": 89,
+  "sft_eval": 11,
+  "dpo_train": 107,
+  "dpo_eval": 14,
+  "states": 100,
+  "states_with_alternatives": 100,
+  "held_out_tasks": [
+    "py_fix_031",
+    "py_fix_034"
+  ],
+  "reject_reasons": {
+    "invalid_json": 82,
+    "disallowed_command": 19,
+    "unknown_action": 11,
+    "premature_final_answer": 7,
+    "bad_path": 2
+  },
+  "pairs_by_family": {
+    "config_repair": 13,
+    "data_transform": 20,
+    "log_extract": 24,
+    "py_fix": 56,
+    "safety_trap": 8
+  }
+}

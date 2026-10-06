@@ -1,0 +1,4 @@
+[alts shard 1/2] 50 states, 50 to sample x4
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   0%|          | 1/338 [00:01<07:09,  1.28s/it]Loading weights:  47%|████▋     | 159/338 [00:01<00:01, 157.43it/s]Loading weights:  71%|███████   | 240/338 [00:01<00:00, 158.17it/s]Loading weights:  86%|████████▋ | 292/338 [00:02<00:00, 147.28it/s]Loading weights:  97%|█████████▋| 328/338 [00:02<00:00, 153.86it/s]Loading weights: 100%|██████████| 338/338 [00:02<00:00, 134.54it/s]
+[alts shard 1] 50/50 states, 3.9 min

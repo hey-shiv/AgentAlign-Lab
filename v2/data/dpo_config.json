@@ -1,0 +1,1 @@
+{"epochs": 2, "lr": 2e-05, "beta": 0.1, "batch_size": 1, "grad_accum": 16, "max_length": 3072, "warmup_ratio": 0.1, "logging_steps": 5, "eval_steps": 20, "quantize": true, "lora_r": 16, "lora_alpha": 32, "lora_dropout": 0.05, "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]}

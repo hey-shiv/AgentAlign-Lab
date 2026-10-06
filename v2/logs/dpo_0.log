@@ -1,0 +1,63 @@
+[dpo] train=107 eval=14 dropped_for_length=0
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   1%|          | 2/338 [00:00<00:16, 19.89it/s]/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:213: FutureWarning: _check_is_size will be removed in a future PyTorch release along with guard_size_oblivious.     Use _check(i >= 0) instead.
+  torch._check_is_size(blocksize)
+Loading weights:   5%|▍         | 16/338 [00:00<00:03, 87.91it/s]Loading weights:  17%|█▋        | 59/338 [00:00<00:01, 239.62it/s]Loading weights:  30%|██▉       | 100/338 [00:00<00:00, 301.03it/s]Loading weights:  42%|████▏     | 143/338 [00:00<00:00, 344.39it/s]Loading weights:  54%|█████▎    | 181/338 [00:00<00:00, 355.36it/s]Loading weights:  65%|██████▌   | 220/338 [00:00<00:00, 362.47it/s]Loading weights:  78%|███████▊  | 263/338 [00:00<00:00, 382.90it/s]Loading weights:  90%|████████▉ | 304/338 [00:00<00:00, 386.75it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 339.80it/s]
+[transformers] warmup_ratio is deprecated and will be removed in v5.2. Use `warmup_steps` instead.
+Adding EOS to train dataset:   0%|          | 0/107 [00:00<?, ? examples/s]Adding EOS to train dataset: 100%|██████████| 107/107 [00:00<00:00, 11781.13 examples/s]
+Tokenizing train dataset:   0%|          | 0/107 [00:00<?, ? examples/s]Tokenizing train dataset:  25%|██▌       | 27/107 [00:00<00:00, 256.03 examples/s]Tokenizing train dataset:  63%|██████▎   | 67/107 [00:00<00:00, 257.93 examples/s]Tokenizing train dataset: 100%|██████████| 107/107 [00:00<00:00, 238.78 examples/s]Tokenizing train dataset: 100%|██████████| 107/107 [00:00<00:00, 242.13 examples/s]
+Adding EOS to eval dataset:   0%|          | 0/14 [00:00<?, ? examples/s]Adding EOS to eval dataset: 100%|██████████| 14/14 [00:00<00:00, 5034.75 examples/s]
+Tokenizing eval dataset:   0%|          | 0/14 [00:00<?, ? examples/s]Tokenizing eval dataset: 100%|██████████| 14/14 [00:00<00:00, 199.07 examples/s]
+[train] cast 392 trainable tensors to fp32
+[transformers] The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+  0%|          | 0/14 [00:00<?, ?it/s]  7%|▋         | 1/14 [00:29<06:21, 29.37s/it] 14%|█▍        | 2/14 [00:55<05:27, 27.31s/it] 21%|██▏       | 3/14 [01:16<04:32, 24.73s/it] 29%|██▊       | 4/14 [01:45<04:24, 26.43s/it] 36%|███▌      | 5/14 [02:10<03:53, 25.89s/it]                                              {'loss': '0.6871', 'grad_norm': '3.08', 'learning_rate': '1.866e-05', 'entropy': '0.4891', 'num_tokens': '9.803e+04', 'logits/chosen': '-3.153', 'logits/rejected': '-3.099', 'mean_token_accuracy': '0.8902', 'rewards/chosen': '0.001316', 'rewards/rejected': '-0.01094', 'rewards/accuracies': '0.45', 'rewards/margins': '0.01225', 'logps/chosen': '-24.69', 'logps/rejected': '-79.83', 'epoch': '0.7477'}
+ 36%|███▌      | 5/14 [02:10<03:53, 25.89s/it] 43%|████▎     | 6/14 [02:37<03:29, 26.15s/it] 50%|█████     | 7/14 [02:54<02:43, 23.30s/it] 57%|█████▋    | 8/14 [03:27<02:36, 26.11s/it] 64%|██████▍   | 9/14 [03:53<02:11, 26.21s/it] 71%|███████▏  | 10/14 [04:17<01:42, 25.56s/it]                                               {'loss': '0.6065', 'grad_norm': '2.506', 'learning_rate': '7.412e-06', 'entropy': '0.4682', 'num_tokens': '1.926e+05', 'logits/chosen': '-3.202', 'logits/rejected': '-3.165', 'mean_token_accuracy': '0.8842', 'rewards/chosen': '0.03213', 'rewards/rejected': '-0.1702', 'rewards/accuracies': '0.9467', 'rewards/margins': '0.2024', 'logps/chosen': '-27.39', 'logps/rejected': '-80.65', 'epoch': '1.449'}
+ 71%|███████▏  | 10/14 [04:17<01:42, 25.56s/it] 79%|███████▊  | 11/14 [04:41<01:15, 25.14s/it] 86%|████████▌ | 12/14 [05:08<00:50, 25.47s/it] 93%|█████████▎| 13/14 [05:33<00:25, 25.52s/it]100%|██████████| 14/14 [05:50<00:00, 22.91s/it]
+  0%|          | 0/14 [00:00<?, ?it/s][A
+ 14%|█▍        | 2/14 [00:00<00:02,  4.43it/s][A
+ 21%|██▏       | 3/14 [00:01<00:05,  1.96it/s][A
+ 29%|██▊       | 4/14 [00:02<00:06,  1.48it/s][A
+ 36%|███▌      | 5/14 [00:03<00:07,  1.13it/s][A
+ 43%|████▎     | 6/14 [00:04<00:08,  1.02s/it][A
+ 50%|█████     | 7/14 [00:06<00:09,  1.29s/it][A
+ 57%|█████▋    | 8/14 [00:07<00:06,  1.03s/it][A
+ 64%|██████▍   | 9/14 [00:07<00:04,  1.07it/s][A
+ 71%|███████▏  | 10/14 [00:08<00:03,  1.22it/s][A
+ 79%|███████▊  | 11/14 [00:09<00:02,  1.32it/s][A
+ 86%|████████▌ | 12/14 [00:10<00:01,  1.18it/s][A
+ 93%|█████████▎| 13/14 [00:11<00:00,  1.05it/s][A
+100%|██████████| 14/14 [00:12<00:00,  1.02s/it][A                                               
+                                               [A{'eval_loss': '0.6325', 'eval_runtime': '12.98', 'eval_samples_per_second': '1.078', 'eval_steps_per_second': '1.078', 'eval_entropy': '0.4847', 'eval_num_tokens': '2.624e+05', 'eval_logits/chosen': '-3.321', 'eval_logits/rejected': '-3.249', 'eval_mean_token_accuracy': '0.8493', 'eval_rewards/chosen': '0.007207', 'eval_rewards/rejected': '-0.1217', 'eval_rewards/accuracies': '0.8571', 'eval_rewards/margins': '0.1289', 'eval_logps/chosen': '-37.74', 'eval_logps/rejected': '-78.97', 'epoch': '2'}
+100%|██████████| 14/14 [06:03<00:00, 22.91s/it]
+100%|██████████| 14/14 [00:12<00:00,  1.02s/it][A
+                                               [A                                               {'train_runtime': '363.5', 'train_samples_per_second': '0.589', 'train_steps_per_second': '0.039', 'train_loss': '0.617', 'epoch': '2'}
+100%|██████████| 14/14 [06:03<00:00, 22.91s/it]100%|██████████| 14/14 [06:03<00:00, 25.97s/it]
+  0%|          | 0/14 [00:00<?, ?it/s] 14%|█▍        | 2/14 [00:00<00:02,  4.37it/s] 21%|██▏       | 3/14 [00:01<00:05,  1.94it/s] 29%|██▊       | 4/14 [00:02<00:06,  1.47it/s] 36%|███▌      | 5/14 [00:03<00:07,  1.13it/s] 43%|████▎     | 6/14 [00:04<00:08,  1.02s/it] 50%|█████     | 7/14 [00:06<00:09,  1.29s/it] 57%|█████▋    | 8/14 [00:07<00:06,  1.02s/it] 64%|██████▍   | 9/14 [00:07<00:04,  1.07it/s] 71%|███████▏  | 10/14 [00:08<00:03,  1.22it/s] 79%|███████▊  | 11/14 [00:09<00:02,  1.32it/s] 86%|████████▌ | 12/14 [00:10<00:01,  1.17it/s] 93%|█████████▎| 13/14 [00:11<00:00,  1.06it/s]100%|██████████| 14/14 [00:12<00:00,  1.02s/it]100%|██████████| 14/14 [00:12<00:00,  1.12it/s]
+{
+  "kind": "dpo",
+  "mode": "qlora",
+  "base_model": "/kaggle/working/AgentAlign-Lab/v2/models/sft_merged",
+  "train_rows": 107,
+  "eval_rows": 14,
+  "dropped_for_length": 0,
+  "wall_time_seconds": 363.9,
+  "gpu": "Tesla T4",
+  "peak_memory_mb": 7343.0,
+  "final_eval": {
+    "eval_loss": 0.6325063705444336,
+    "eval_runtime": 12.9925,
+    "eval_samples_per_second": 1.078,
+    "eval_steps_per_second": 1.078,
+    "eval_entropy": 0.48471191951206755,
+    "eval_num_tokens": 262438.0,
+    "eval_logits/chosen": -3.320561383379785,
+    "eval_logits/rejected": -3.248738575261172,
+    "eval_mean_token_accuracy": 0.8492597724710192,
+    "eval_rewards/chosen": 0.007206998855378645,
+    "eval_rewards/rejected": -0.12168771321220058,
+    "eval_rewards/accuracies": 0.8571428571428571,
+    "eval_rewards/margins": 0.12889471078025444,
+    "eval_logps/chosen": -37.73717376164028,
+    "eval_logps/rejected": -78.96542521885463,
+    "epoch": 2.0
+  }
+}

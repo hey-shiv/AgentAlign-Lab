@@ -1,0 +1,3 @@
+[rollout qwen_sft_dpo shard 1/2] 84 jobs, 0 already done, 84 to run
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:  75%|███████▍  | 252/338 [00:00<00:00, 2502.13it/s]Loading weights: 100%|██████████| 338/338 [00:00<00:00, 2526.49it/s]
+[rollout qwen_sft_dpo shard 1] 84/84 done, pass 12/84, 4.1s/episode, ETA 0.0 min

@@ -1,0 +1,51 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+[sft] train=89 eval=11 dropped_for_length=0
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   0%|          | 1/338 [00:00<02:12,  2.54it/s]/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:213: FutureWarning: _check_is_size will be removed in a future PyTorch release along with guard_size_oblivious.     Use _check(i >= 0) instead.
+  torch._check_is_size(blocksize)
+Loading weights:   1%|          | 4/338 [00:00<00:34,  9.59it/s]Loading weights:   8%|▊         | 28/338 [00:00<00:04, 69.77it/s]Loading weights:  15%|█▌        | 52/338 [00:00<00:02, 113.06it/s]Loading weights:  22%|██▏       | 75/338 [00:00<00:01, 141.28it/s]Loading weights:  28%|██▊       | 95/338 [00:00<00:01, 157.31it/s]Loading weights:  34%|███▎      | 114/338 [00:01<00:01, 165.77it/s]Loading weights:  41%|████      | 137/338 [00:01<00:01, 179.70it/s]Loading weights:  48%|████▊     | 161/338 [00:01<00:00, 191.33it/s]Loading weights:  55%|█████▍    | 185/338 [00:01<00:00, 200.04it/s]Loading weights:  62%|██████▏   | 209/338 [00:01<00:00, 206.75it/s]Loading weights:  69%|██████▉   | 233/338 [00:01<00:00, 211.49it/s]Loading weights:  76%|███████▌  | 257/338 [00:01<00:00, 210.94it/s]Loading weights:  83%|████████▎ | 281/338 [00:01<00:00, 213.92it/s]Loading weights:  90%|█████████ | 305/338 [00:01<00:00, 215.59it/s]Loading weights:  97%|█████████▋| 329/338 [00:02<00:00, 215.58it/s]Loading weights: 100%|██████████| 338/338 [00:02<00:00, 166.08it/s]
+[transformers] warmup_ratio is deprecated and will be removed in v5.2. Use `warmup_steps` instead.
+/kaggle/working/AgentAlign-Lab/src/agentalign/v2/train.py:83: FutureWarning: The default `loss_type` will change from `'nll'` to `'chunked_nll'` in TRL 1.7. For standard models this is transparent (same math, lower memory) and no action is needed — you'll get the new default automatically on upgrade. If you use a custom model, check ahead of time that `loss_type='chunked_nll'` runs and yields the same loss as `'nll'`; if it doesn't, pin `loss_type='nll'` to keep the current behavior and please open an issue at https://github.com/huggingface/trl/issues so we can address the edge case.
+  return cls(**{k: v for k, v in kwargs.items() if k in params and v is not None})
+Adding EOS to train dataset:   0%|          | 0/89 [00:00<?, ? examples/s]Adding EOS to train dataset: 100%|██████████| 89/89 [00:00<00:00, 12340.67 examples/s]
+Tokenizing train dataset:   0%|          | 0/89 [00:00<?, ? examples/s]Tokenizing train dataset:  47%|████▋     | 42/89 [00:00<00:00, 406.39 examples/s]Tokenizing train dataset: 100%|██████████| 89/89 [00:00<00:00, 352.94 examples/s]Tokenizing train dataset: 100%|██████████| 89/89 [00:00<00:00, 357.60 examples/s]
+Adding EOS to eval dataset:   0%|          | 0/11 [00:00<?, ? examples/s]Adding EOS to eval dataset: 100%|██████████| 11/11 [00:00<00:00, 4776.62 examples/s]
+Tokenizing eval dataset:   0%|          | 0/11 [00:00<?, ? examples/s]Tokenizing eval dataset: 100%|██████████| 11/11 [00:00<00:00, 264.55 examples/s]
+[train] cast 392 trainable tensors to fp32
+[transformers] The tokenizer has new PAD/BOS/EOS tokens that differ from the model config and generation config. The model config and generation config were aligned accordingly, being updated with the tokenizer's values. Updated tokens: {'bos_token_id': None, 'pad_token_id': 151643}.
+  0%|          | 0/18 [00:00<?, ?it/s]  6%|▌         | 1/18 [00:11<03:07, 11.04s/it] 11%|█         | 2/18 [00:19<02:32,  9.56s/it] 17%|█▋        | 3/18 [00:28<02:21,  9.41s/it] 22%|██▏       | 4/18 [00:40<02:25, 10.41s/it] 28%|██▊       | 5/18 [00:50<02:12, 10.19s/it]                                              {'loss': '0.4623', 'grad_norm': '0.4074', 'learning_rate': '9.619e-05', 'entropy': '0.4588', 'mean_token_accuracy': '0.8519', 'num_tokens': '4.607e+04', 'epoch': '0.8889'}
+ 28%|██▊       | 5/18 [00:50<02:12, 10.19s/it] 33%|███▎      | 6/18 [00:56<01:43,  8.61s/it] 39%|███▉      | 7/18 [01:05<01:36,  8.76s/it] 44%|████▍     | 8/18 [01:17<01:39,  9.93s/it] 50%|█████     | 9/18 [01:30<01:38, 10.93s/it] 56%|█████▌    | 10/18 [01:41<01:26, 10.85s/it]                                               {'loss': '0.3887', 'grad_norm': '0.3627', 'learning_rate': '5.975e-05', 'entropy': '0.4712', 'mean_token_accuracy': '0.8682', 'num_tokens': '8.779e+04', 'epoch': '1.711'}
+ 56%|█████▌    | 10/18 [01:41<01:26, 10.85s/it] 61%|██████    | 11/18 [01:52<01:16, 10.94s/it] 67%|██████▋   | 12/18 [01:58<00:57,  9.57s/it] 72%|███████▏  | 13/18 [02:09<00:48,  9.77s/it] 78%|███████▊  | 14/18 [02:17<00:36,  9.21s/it] 83%|████████▎ | 15/18 [02:30<00:31, 10.41s/it]                                               {'loss': '0.33', 'grad_norm': '0.4316', 'learning_rate': '1.464e-05', 'entropy': '0.418', 'mean_token_accuracy': '0.8913', 'num_tokens': '1.276e+05', 'epoch': '2.533'}
+ 83%|████████▎ | 15/18 [02:30<00:31, 10.41s/it] 89%|████████▉ | 16/18 [02:40<00:20, 10.37s/it] 94%|█████████▍| 17/18 [02:53<00:11, 11.27s/it]100%|██████████| 18/18 [03:02<00:00, 10.32s/it]
+  0%|          | 0/6 [00:00<?, ?it/s][A
+ 33%|███▎      | 2/6 [00:00<00:01,  2.76it/s][A
+ 50%|█████     | 3/6 [00:01<00:01,  1.70it/s][A
+ 67%|██████▋   | 4/6 [00:01<00:00,  2.07it/s][A
+ 83%|████████▎ | 5/6 [00:02<00:00,  2.19it/s][A
+100%|██████████| 6/6 [00:02<00:00,  2.23it/s][A                                               
+                                             [A{'eval_loss': '0.3994', 'eval_runtime': '3.284', 'eval_samples_per_second': '3.349', 'eval_steps_per_second': '1.827', 'eval_entropy': '0.4526', 'eval_mean_token_accuracy': '0.8576', 'eval_num_tokens': '1.527e+05', 'epoch': '3'}
+100%|██████████| 18/18 [03:05<00:00, 10.32s/it]
+100%|██████████| 6/6 [00:02<00:00,  2.23it/s][A
+                                             [A                                               {'train_runtime': '185.3', 'train_samples_per_second': '1.441', 'train_steps_per_second': '0.097', 'train_loss': '0.3869', 'epoch': '3'}
+100%|██████████| 18/18 [03:05<00:00, 10.32s/it]100%|██████████| 18/18 [03:05<00:00, 10.30s/it]
+  0%|          | 0/6 [00:00<?, ?it/s] 33%|███▎      | 2/6 [00:00<00:01,  2.77it/s] 50%|█████     | 3/6 [00:01<00:01,  1.69it/s] 67%|██████▋   | 4/6 [00:01<00:00,  2.07it/s] 83%|████████▎ | 5/6 [00:02<00:00,  2.18it/s]100%|██████████| 6/6 [00:02<00:00,  2.22it/s]100%|██████████| 6/6 [00:02<00:00,  2.15it/s]
+{
+  "kind": "sft",
+  "mode": "qlora",
+  "base_model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "train_rows": 89,
+  "eval_rows": 11,
+  "dropped_for_length": 0,
+  "wall_time_seconds": 185.7,
+  "gpu": "Tesla T4",
+  "peak_memory_mb": 7023.9,
+  "final_eval": {
+    "eval_loss": 0.39939650893211365,
+    "eval_runtime": 3.296,
+    "eval_samples_per_second": 3.337,
+    "eval_steps_per_second": 1.82,
+    "eval_entropy": 0.4526176452636719,
+    "eval_mean_token_accuracy": 0.8575973411401113,
+    "eval_num_tokens": 152694.0,
+    "epoch": 3.0
+  }
+}

@@ -1,0 +1,5 @@
+[rollout qwen_base_sample shard 1/2] 648 jobs, 512 already done, 136 to run
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/338 [00:00<?, ?it/s]Loading weights:   0%|          | 1/338 [00:00<02:27,  2.28it/s]Loading weights:  33%|███▎      | 111/338 [00:00<00:00, 263.89it/s]Loading weights:  50%|█████     | 169/338 [00:00<00:00, 274.65it/s]Loading weights:  63%|██████▎   | 214/338 [00:00<00:00, 266.88it/s]Loading weights:  74%|███████▍  | 251/338 [00:01<00:00, 271.85it/s]Loading weights:  84%|████████▍ | 285/338 [00:01<00:00, 260.65it/s]Loading weights:  93%|█████████▎| 316/338 [00:01<00:00, 258.60it/s]Loading weights: 100%|██████████| 338/338 [00:01<00:00, 247.91it/s]
+[rollout qwen_base_sample shard 1] 128/136 done, pass 1/128, 12.7s/episode, ETA 1.7 min
+[rollout qwen_base_sample shard 1] 136/136 done, pass 1/136, 12.3s/episode, ETA 0.0 min

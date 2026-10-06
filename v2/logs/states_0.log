@@ -1,0 +1,8 @@
+{
+  "rollouts": 1296,
+  "clean_successes": 40,
+  "tasks": 81,
+  "tasks_with_success": 19,
+  "successes_used": 29,
+  "states": 100
+}

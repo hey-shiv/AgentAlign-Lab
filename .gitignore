@@ -147,3 +147,10 @@ runs/
 # Kaggle v2 bundle build artifacts (rebuild with kaggle/v2/build_bundle.py)
 kaggle/v2/dataset/
 kaggle/v2/*.zip
+
+# v2 run outputs: keep results/figures/data/logs/eval in git; weights and raw train rollouts stay local
+v2/adapters/
+v2/models/
+v2/rollouts_train/
+v2/.done_*
+v2/AGENTALIGN_V2_RESULTS
